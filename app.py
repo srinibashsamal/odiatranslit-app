@@ -428,7 +428,7 @@ def render_extra_info(t: dict[str, str]) -> None:
     st.subheader(t["cmp_title"])
 
     cols = st.columns(3)
-    for col, name in zip(cols, ["ISO15919", "ITRANS", "Hunterian"]):
+    for col, name in zip(cols, ["ISO15919", "ITRANS", "Hunterian"], strict=True):
         with col:
             st.markdown(f"**{SCHEME_LABELS[name]}**")
             preview = demo_conversion(DEMO_TEXT, name)
