@@ -35,7 +35,7 @@ PANEL_HEIGHT: int = 200
 # Input placeholder per conversion direction (shown as typed by the author).
 PLACEHOLDERS: dict[str, str] = {
     "o2r": "ଏଠାରେ ଓଡ଼ିଆ ଟେକ୍ସଟ୍ ଲେଖନ୍ତୁ...\nType or paste Odia text here...",
-    "r2o": ("Type or paste Roman text here...\n" "e.g. namaskAra  or  ōṛiā bhāṣā"),
+    "r2o": ("Type or paste Roman text here...\ne.g. namaskAra  or  ōṛiā bhāṣā"),
 }
 
 # Sample Odia text used in the scheme comparison section.
@@ -192,14 +192,13 @@ TEXT: dict[str, dict[str, str]] = {
             "is not intentionally stored."
         ),
         "desc_ISO15919": (
-            "Academic and linguistically precise " "transliteration using diacritics."
+            "Academic and linguistically precise transliteration using diacritics."
         ),
         "desc_Hunterian": (
-            "Simpler Roman spelling suited to readable "
-            "names, places and general text."
+            "Simpler Roman spelling suited to readable names, places and general text."
         ),
         "desc_ITRANS": (
-            "Keyboard-friendly transliteration using " "ASCII-style sequences."
+            "Keyboard-friendly transliteration using ASCII-style sequences."
         ),
         "ex_language": "Odia language",
         "ex_greeting": "Greeting",
@@ -298,8 +297,7 @@ TEXT: dict[str, dict[str, str]] = {
         ),
         "powered": "{pkg} v{ver} ଦ୍ୱାରା ଚାଳିତ",
         "footer": (
-            "<b>Streamlit</b> + {pypi_link} ସହ ❤️ ରେ ନିର୍ମିତ<br>"
-            "{author_link} · MIT ଲାଇସେନ୍ସ"
+            "<b>Streamlit</b> + {pypi_link} ସହ ❤️ ରେ ନିର୍ମିତ<br>{author_link} · MIT ଲାଇସେନ୍ସ"
         ),
         "conv_error": "ରୂପାନ୍ତର ବିଫଳ ହେଲା: {err}",
         "demo_error": "ପୂର୍ବାବଲୋକନ ଉପଲବ୍ଧ ନାହିଁ",
@@ -311,17 +309,12 @@ TEXT: dict[str, dict[str, str]] = {
         "btn_clear": "ଲିଭାନ୍ତୁ",
         "btn_swap": "ଦିଗ ବଦଳାନ୍ତୁ",
         "btn_dl": "ଡାଉନଲୋଡ୍",
-        "limit_reached": (
-            "ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। "
-            "ଏହାଠାରୁ ଅଧିକ ଲେଖା କଟିଯାଇଥାଇପାରେ।"
-        ),
+        "limit_reached": ("ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। ଏହାଠାରୁ ଅଧିକ ଲେଖା କଟିଯାଇଥାଇପାରେ।"),
         "odia_in_roman_hint": (
-            "ଇନପୁଟ୍‌ରେ ଓଡ଼ିଆ ଲିପି ଅଛି, କିନ୍ତୁ ଦିଗ ରୋମାନ୍ → ଓଡ଼ିଆ ଅଛି। "
-            "ରୋମାନ୍‌କୁ ବଦଳାଇବାକୁ ଦିଗ ବଦଳାନ୍ତୁ।"
+            "ଇନପୁଟ୍‌ରେ ଓଡ଼ିଆ ଲିପି ଅଛି, କିନ୍ତୁ ଦିଗ ରୋମାନ୍ → ଓଡ଼ିଆ ଅଛି। ରୋମାନ୍‌କୁ ବଦଳାଇବାକୁ ଦିଗ ବଦଳାନ୍ତୁ।"
         ),
         "scheme_hint": (
-            "ପଦ୍ଧତି ବଦଳିଛି। ପ୍ରତ୍ୟେକ ପଦ୍ଧତିରେ ରୋମାନ୍ ବନାନ ଭିନ୍ନ, ତେଣୁ "
-            "ନୂଆ ପଦ୍ଧତି ଅନୁଯାୟୀ ଇନପୁଟ୍ ପୁଣି ଯାଞ୍ଚ କରନ୍ତୁ।"
+            "ପଦ୍ଧତି ବଦଳିଛି। ପ୍ରତ୍ୟେକ ପଦ୍ଧତିରେ ରୋମାନ୍ ବନାନ ଭିନ୍ନ, ତେଣୁ ନୂଆ ପଦ୍ଧତି ଅନୁଯାୟୀ ଇନପୁଟ୍ ପୁଣି ଯାଞ୍ଚ କରନ୍ତୁ।"
         ),
         "pypi": "PyPI",
         "github": "GitHub",
@@ -337,9 +330,7 @@ TEXT: dict[str, dict[str, str]] = {
             "ଲେଖା ଏହି ଆପ୍ ଦ୍ୱାରା ଅସ୍ଥାୟୀ ଭାବେ ପ୍ରକ୍ରିୟାକରଣ ହୁଏ, "
             "ଜାଣିଶୁଣି ସଂରକ୍ଷିତ ହୁଏ ନାହିଁ।"
         ),
-        "desc_ISO15919": (
-            "ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"
-        ),
+        "desc_ISO15919": ("ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"),
         "desc_Hunterian": ("ନାମ, ସ୍ଥାନ ଓ ସାଧାରଣ ଲେଖା ପାଇଁ ସହଜ ରୋମାନ୍ ବନାନ।"),
         "desc_ITRANS": ("କିବୋର୍ଡ ଅନୁକୂଳ, ASCII ଧାଡ଼ି ଆଧାରିତ ଲିପ୍ୟନ୍ତର।"),
         "ex_language": "ଓଡ଼ିଆ ଭାଷା",

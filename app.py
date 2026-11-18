@@ -35,8 +35,8 @@ from app_constants import (
 )
 from app_helpers import (
     build_download_text,
-    convert,
     contains_odia,
+    convert,
     count_label,
     demo_conversion,
     effective_reversible,
@@ -467,10 +467,7 @@ def render_tabs(t: dict[str, str]) -> None:
     with tab_about:
         powered = t["powered"].format(pkg=f"`{PACKAGE_NAME}`", ver=package_version())
         st.markdown(
-            f"{powered}\n\n"
-            f"PyPI: {PYPI_URL}\n\n"
-            f"GitHub: {GITHUB_URL}\n\n"
-            f"{t['about']}"
+            f"{powered}\n\nPyPI: {PYPI_URL}\n\nGitHub: {GITHUB_URL}\n\n{t['about']}"
         )
 
 
