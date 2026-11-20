@@ -18,12 +18,12 @@ from app_constants import (
     APP_TZ_NAME,
     APP_UTC_OFFSET_MINUTES,
     DIRECTION_FILE_LABELS,
-    TOOL_URL,
     GITHUB_URL,
     O2R,
     PACKAGE_NAME,
     REVERSIBLE_SCHEMES,
     SCHEME_LABELS,
+    TOOL_URL,
 )
 
 _TZ = timezone(timedelta(minutes=APP_UTC_OFFSET_MINUTES), APP_TZ_NAME)
