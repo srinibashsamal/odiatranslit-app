@@ -1,8 +1,7 @@
 """Constants, UI text, and CSS for the Odia Transliterate Streamlit app.
 
 This module centralises all configuration, bilingual UI strings (English and
-Odia), example texts, and the custom CSS + JavaScript template used by the
-front-end.
+Odia), example texts, and the page-level CSS.
 """
 
 from __future__ import annotations
@@ -10,63 +9,48 @@ from __future__ import annotations
 # ---------------------------------------------------------------------------
 # Application metadata
 # ---------------------------------------------------------------------------
-
 APP_ICON: str = "🔤"
 PACKAGE_NAME: str = "odiatranslit"
 PYPI_URL: str = "https://pypi.org/project/odiatranslit/"
 GITHUB_URL: str = "https://github.com/srinibashsamal/odiatranslit"
+TOOL_URL: str = "https://odiatranslitor.streamlit.app/"
 ISSUES_URL: str = f"{GITHUB_URL}/issues"
 
-# Maximum characters accepted in the input box (safety / performance limit).
+# Max input length in Unicode code points.
 MAX_CHARACTERS: int = 50_000
 
-# Debounce delay (ms) before a live keystroke triggers a Streamlit rerun.
-LIVE_DEBOUNCE_MS: int = 500
-
-# Time zone used for timestamps in the downloaded file and its name.
-# Streamlit Cloud servers run on UTC, so we pin IST explicitly.
-# India has no daylight saving, so a fixed +05:30 offset is exact.
+# Fixed IST offset (no DST).
 APP_UTC_OFFSET_MINUTES: int = 330
 APP_TZ_NAME: str = "IST"
 
-# Height (px) of the input and output text areas.
-PANEL_HEIGHT: int = 200
+PANEL_HEIGHT: int = 220
 
-# Input placeholder per conversion direction (shown as typed by the author).
 PLACEHOLDERS: dict[str, str] = {
     "o2r": "ଏଠାରେ ଓଡ଼ିଆ ଟେକ୍ସଟ୍ ଲେଖନ୍ତୁ...\nType or paste Odia text here...",
     "r2o": ("Type or paste Roman text here...\ne.g. namaskAra  or  ōṛiā bhāṣā"),
 }
 
-# Sample Odia text used in the scheme comparison section.
 DEMO_TEXT: str = "ଓଡ଼ିଆ ଭାଷା"
 
 # ---------------------------------------------------------------------------
 # Language and direction constants
 # ---------------------------------------------------------------------------
-
 LANGS: list[str] = ["en", "or"]
 LANG_LABELS: dict[str, str] = {
     "en": "English",
     "or": "ଓଡ଼ିଆ",
 }
 
-# Direction identifiers used as keys throughout the UI and helpers.
-O2R: str = "o2r"  # Odia → Roman
-R2O: str = "r2o"  # Roman → Odia
+O2R: str = "o2r"
+R2O: str = "r2o"
 DIRECTIONS: list[str] = [O2R, R2O]
 
-
-# Direction labels used inside the downloaded file (always English).
 DIRECTION_FILE_LABELS: dict[str, str] = {
     O2R: "Odia → Roman",
     R2O: "Roman → Odia",
 }
 
-# Supported transliteration schemes.
 SCHEMES: list[str] = ["ISO15919", "Hunterian", "ITRANS"]
-
-# Schemes that support lossless round-tripping when reversible=True.
 REVERSIBLE_SCHEMES: set[str] = {"ISO15919", "ITRANS"}
 
 SCHEME_LABELS: dict[str, str] = {
@@ -78,7 +62,6 @@ SCHEME_LABELS: dict[str, str] = {
 # ---------------------------------------------------------------------------
 # Example texts
 # ---------------------------------------------------------------------------
-
 ODIA_EXAMPLES: dict[str, str] = {
     "language": "ଓଡ଼ିଆ",
     "greeting": "ନମସ୍କାର",
@@ -86,7 +69,6 @@ ODIA_EXAMPLES: dict[str, str] = {
     "sentence": "ମୋ ଓଡ଼ିଶା ଅତି ସୁନ୍ଦର।",
 }
 
-# Roman examples are scheme-specific spellings of the Odia examples above.
 ROMAN_EXAMPLES: dict[str, dict[str, str]] = {
     "ISO15919": {
         "language": "ōṛiā",
@@ -111,7 +93,6 @@ ROMAN_EXAMPLES: dict[str, dict[str, str]] = {
 # ---------------------------------------------------------------------------
 # Bilingual UI strings
 # ---------------------------------------------------------------------------
-
 TEXT: dict[str, dict[str, str]] = {
     "en": {
         "title": "Odia Transliterate",
@@ -130,11 +111,11 @@ TEXT: dict[str, dict[str, str]] = {
         "input": "Input",
         "output": "Output",
         "input_aria": "Enter or paste your text",
-        "output_aria": "Transliterated text",
         "chars": "characters",
         "words": "words",
         "copy": "Copy to clipboard",
         "copied": "Copied!",
+        "updating": "Updating…",
         "clear": "Clear input",
         "swap": "Use output as input and swap direction",
         "dl": "Download input and output as .txt",
@@ -145,8 +126,8 @@ TEXT: dict[str, dict[str, str]] = {
         "how": (
             "1. Choose a direction.\n"
             "2. Select a scheme.\n"
-            "3. Type or paste text. The result updates live.\n"
-            "4. Use the copy icon on a field or download the result.\n"
+            "3. Type or paste text. The result updates automatically as you type.\n"
+            "4. Use the copy buttons or download the result.\n"
             "5. Use the swap icon for reverse conversion.\n\n"
             "**Transliteration changes scripts; "
             "it does not translate meaning.**"
@@ -168,7 +149,7 @@ TEXT: dict[str, dict[str, str]] = {
         "btn_dl": "Download",
         "limit_reached": (
             "The input limit of {limit} code points has been reached. "
-            "Anything beyond it may have been cut off."
+            "Anything beyond it has been cut off."
         ),
         "odia_in_roman_hint": (
             "The input contains Odia script, but the direction is Roman → "
@@ -183,7 +164,7 @@ TEXT: dict[str, dict[str, str]] = {
         "issues": "Report an issue",
         "sidebar_tip": "Tip",
         "tip_text": (
-            "Results update as you type. Use ISO 15919 or ITRANS "
+            "Results update automatically as you type. Use ISO 15919 or ITRANS "
             "with reversible mode for a lossless round trip."
         ),
         "about": (
@@ -209,8 +190,8 @@ TEXT: dict[str, dict[str, str]] = {
             "| Scheme | Best for | Example |\n"
             "|--------|----------|---------|\n"
             "| **ISO 15919** | Academic writing, citations | ōṛiā bhāṣā |\n"
-            "| **ITRANS** | Typing Odia on English keyboard | o.DiA bhAShA |\n"
-            "| **Hunterian** | Names, places, URLs, search | oria bhasha |"
+            "| **Hunterian** | Names, places, URLs, search | oria bhasha |\n"
+            "| **ITRANS** | Typing Odia on English keyboard | o.DiA bhAShA |"
         ),
         "side_features": "Features",
         "side_features_list": (
@@ -274,11 +255,11 @@ TEXT: dict[str, dict[str, str]] = {
         "input": "ଇନପୁଟ୍",
         "output": "ଆଉଟପୁଟ୍",
         "input_aria": "ଆପଣଙ୍କ ଲେଖା ଟାଇପ୍ କିମ୍ବା ପେଷ୍ଟ କରନ୍ତୁ",
-        "output_aria": "ଲିପ୍ୟନ୍ତରିତ ଲେଖା",
         "chars": "ଅକ୍ଷର",
         "words": "ଶବ୍ଦ",
         "copy": "କ୍ଲିପବୋର୍ଡକୁ କପି କରନ୍ତୁ",
         "copied": "କପି ହେଲା!",
+        "updating": "ଅପଡେଟ୍ ହେଉଛି…",
         "clear": "ଇନପୁଟ୍ ଲିଭାନ୍ତୁ",
         "swap": "ଆଉଟପୁଟ୍‌କୁ ଇନପୁଟ୍ କରି ଦିଗ ବଦଳାନ୍ତୁ",
         "dl": "ଇନପୁଟ୍ ଓ ଆଉଟପୁଟ୍ .txt ଭାବେ ଡାଉନଲୋଡ୍ କରନ୍ତୁ",
@@ -290,8 +271,8 @@ TEXT: dict[str, dict[str, str]] = {
             "1. ଏକ ଦିଗ ବାଛନ୍ତୁ।\n"
             "2. ଏକ ପଦ୍ଧତି ବାଛନ୍ତୁ।\n"
             "3. ଲେଖା ଟାଇପ୍ କିମ୍ବା ପେଷ୍ଟ କରନ୍ତୁ। "
-            "ଫଳାଫଳ ସଙ୍ଗେ ସଙ୍ଗେ ଦେଖାଯିବ।\n"
-            "4. ଫିଲ୍ଡର କପି ଆଇକନ୍ ଚାପନ୍ତୁ କିମ୍ବା ଫଳାଫଳ ଡାଉନଲୋଡ୍ କରନ୍ତୁ।\n"
+            "ଟାଇପ୍ କରିବା ସହିତ ଫଳାଫଳ ଆପେ ଆପେ ବଦଳିବ।\n"
+            "4. କପି ବଟନ୍ ବ୍ୟବହାର କରନ୍ତୁ କିମ୍ବା ଫଳାଫଳ ଡାଉନଲୋଡ୍ କରନ୍ତୁ।\n"
             "5. ଓଲଟା ରୂପାନ୍ତର ପାଇଁ ବଦଳ ଆଇକନ୍ ବ୍ୟବହାର କରନ୍ତୁ।\n\n"
             "**ଲିପ୍ୟନ୍ତର ଲିପି ବଦଳାଏ; ଏହା ଅର୍ଥ ଅନୁବାଦ କରେ ନାହିଁ।**"
         ),
@@ -309,19 +290,23 @@ TEXT: dict[str, dict[str, str]] = {
         "btn_clear": "ଲିଭାନ୍ତୁ",
         "btn_swap": "ଦିଗ ବଦଳାନ୍ତୁ",
         "btn_dl": "ଡାଉନଲୋଡ୍",
-        "limit_reached": ("ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। ଏହାଠାରୁ ଅଧିକ ଲେଖା କଟିଯାଇଥାଇପାରେ।"),
+        "limit_reached": (
+            "ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। " "ଏହାଠାରୁ ଅଧିକ ଲେଖା କଟିଯାଇଛି।"
+        ),
         "odia_in_roman_hint": (
-            "ଇନପୁଟ୍‌ରେ ଓଡ଼ିଆ ଲିପି ଅଛି, କିନ୍ତୁ ଦିଗ ରୋମାନ୍ → ଓଡ଼ିଆ ଅଛି। ରୋମାନ୍‌କୁ ବଦଳାଇବାକୁ ଦିଗ ବଦଳାନ୍ତୁ।"
+            "ଇନପୁଟ୍‌ରେ ଓଡ଼ିଆ ଲିପି ଅଛି, କିନ୍ତୁ ଦିଗ ରୋମାନ୍ → ଓଡ଼ିଆ ଅଛି। "
+            "ରୋମାନ୍‌କୁ ବଦଳାଇବାକୁ ଦିଗ ବଦଳାନ୍ତୁ।"
         ),
         "scheme_hint": (
-            "ପଦ୍ଧତି ବଦଳିଛି। ପ୍ରତ୍ୟେକ ପଦ୍ଧତିରେ ରୋମାନ୍ ବନାନ ଭିନ୍ନ, ତେଣୁ ନୂଆ ପଦ୍ଧତି ଅନୁଯାୟୀ ଇନପୁଟ୍ ପୁଣି ଯାଞ୍ଚ କରନ୍ତୁ।"
+            "ପଦ୍ଧତି ବଦଳିଛି। ପ୍ରତ୍ୟେକ ପଦ୍ଧତିରେ ରୋମାନ୍ ବନାନ ଭିନ୍ନ, "
+            "ତେଣୁ ନୂଆ ପଦ୍ଧତି ଅନୁଯାୟୀ ଇନପୁଟ୍ ପୁଣି ଯାଞ୍ଚ କରନ୍ତୁ।"
         ),
         "pypi": "PyPI",
         "github": "GitHub",
         "issues": "ସମସ୍ୟା ଜଣାନ୍ତୁ",
         "sidebar_tip": "ପରାମର୍ଶ",
         "tip_text": (
-            "ଟାଇପ୍ କରିବା ସହିତ ଫଳାଫଳ ବଦଳେ। ସମ୍ପୂର୍ଣ୍ଣ ଓଲଟା ରୂପାନ୍ତର "
+            "ଟାଇପ୍ କରିବା ସହିତ ଫଳାଫଳ ଆପେ ଆପେ ଅପଡେଟ୍ ହୁଏ। ସମ୍ପୂର୍ଣ୍ଣ ଓଲଟା ରୂପାନ୍ତର "
             "ପାଇଁ ISO 15919 କିମ୍ବା ITRANS ସହ ପ୍ରତ୍ୟାବର୍ତ୍ତନୀୟ ମୋଡ୍ "
             "ବ୍ୟବହାର କରନ୍ତୁ।"
         ),
@@ -330,7 +315,9 @@ TEXT: dict[str, dict[str, str]] = {
             "ଲେଖା ଏହି ଆପ୍ ଦ୍ୱାରା ଅସ୍ଥାୟୀ ଭାବେ ପ୍ରକ୍ରିୟାକରଣ ହୁଏ, "
             "ଜାଣିଶୁଣି ସଂରକ୍ଷିତ ହୁଏ ନାହିଁ।"
         ),
-        "desc_ISO15919": ("ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"),
+        "desc_ISO15919": (
+            "ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"
+        ),
         "desc_Hunterian": ("ନାମ, ସ୍ଥାନ ଓ ସାଧାରଣ ଲେଖା ପାଇଁ ସହଜ ରୋମାନ୍ ବନାନ।"),
         "desc_ITRANS": ("କିବୋର୍ଡ ଅନୁକୂଳ, ASCII ଧାଡ଼ି ଆଧାରିତ ଲିପ୍ୟନ୍ତର।"),
         "ex_language": "ଓଡ଼ିଆ ଭାଷା",
@@ -342,8 +329,8 @@ TEXT: dict[str, dict[str, str]] = {
             "| ପଦ୍ଧତି | କେଉଁଥିପାଇଁ ଉପଯୁକ୍ତ | ଉଦାହରଣ |\n"
             "|--------|----------|---------|\n"
             "| **ISO 15919** | ଶୈକ୍ଷିକ ଲେଖା, ଉଦ୍ଧୃତି | ōṛiā bhāṣā |\n"
-            "| **ITRANS** | ଇଂରାଜୀ କିବୋର୍ଡରେ ଓଡ଼ିଆ ଟାଇପିଂ | o.DiA bhAShA |\n"
-            "| **Hunterian** | ନାମ, ସ୍ଥାନ, URL, ସନ୍ଧାନ | oria bhasha |"
+            "| **Hunterian** | ନାମ, ସ୍ଥାନ, URL, ସନ୍ଧାନ | oria bhasha |\n"
+            "| **ITRANS** | ଇଂରାଜୀ କିବୋର୍ଡରେ ଓଡ଼ିଆ ଟାଇପିଂ | o.DiA bhAShA |"
         ),
         "side_features": "ବୈଶିଷ୍ଟ୍ୟ",
         "side_features_list": (
@@ -390,9 +377,8 @@ TEXT: dict[str, dict[str, str]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Custom CSS (injected once via st.markdown)
+# Page-level CSS (injected once via st.markdown)
 # ---------------------------------------------------------------------------
-
 CUSTOM_CSS: str = """
 <style>
 /* Wider main content area */
@@ -400,49 +386,6 @@ CUSTOM_CSS: str = """
     max-width: 1150px;
     padding-top: 2rem;
     padding-bottom: 3rem;
-}
-
-/* Slightly larger, more readable text areas */
-[data-testid='stTextArea'] textarea {
-    font-size: 1.05rem;
-    line-height: 1.7;
-    padding-right: 3.2rem;   /* room for the copy button */
-}
-
-/* Containers that host the floating copy buttons */
-.st-key-source,
-.st-key-output_box {
-    position: relative;
-}
-
-/* Floating copy button */
-.odia-copy {
-    position: absolute;
-    top: 8px;
-    right: 24px;   /* clear of the textarea's vertical scrollbar */
-    z-index: 5;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(128, 128, 128, 0.35);
-    border-radius: 0.4rem;
-    background: rgba(128, 128, 128, 0.12);
-    color: inherit;
-    cursor: pointer;
-    padding: 0;
-    opacity: 0.85;
-    transition: all 0.15s;
-}
-.odia-copy:hover {
-    opacity: 1;
-    background: rgba(255, 75, 75, 0.18);
-    border-color: rgba(255, 75, 75, 0.6);
-}
-.odia-copy.done {
-    background: rgba(33, 195, 84, 0.25);
-    border-color: rgba(33, 195, 84, 0.7);
 }
 
 /* Scheme description call-out */
@@ -467,14 +410,6 @@ CUSTOM_CSS: str = """
     text-decoration: underline;
 }
 
-/* While a live keystroke is still waiting to be converted, the download
-   button would export stale data, so it is made inert until the rerun
-   finishes (the injected script toggles this attribute). */
-body[data-odia-pending="1"] .st-key-btn_dl button {
-    pointer-events: none;
-    opacity: 0.45;
-}
-
 /* ---- Phones / narrow screens ---------------------------------------- */
 @media (max-width: 640px) {
     .block-container {
@@ -495,16 +430,6 @@ body[data-odia-pending="1"] .st-key-btn_dl button {
         margin: 0.25rem 0 0.75rem;
         font-size: 0.9rem;
     }
-    /* Bigger touch target for the in-field copy button (>= 40px) */
-    .odia-copy {
-        width: 40px;
-        height: 40px;
-        top: 6px;
-        right: 10px;   /* touch scrollbars are overlays, no need to dodge */
-    }
-    [data-testid='stTextArea'] textarea {
-        padding-right: 3.8rem;
-    }
     /* Thumb-sized toolbar buttons */
     .st-key-btn_clear button,
     .st-key-btn_swap button,
@@ -515,255 +440,5 @@ body[data-odia-pending="1"] .st-key-btn_dl button {
         padding-top: 1rem;
     }
 }
-
-/* Hide the zero-height iframe used to inject live JS */
-.st-key-live_js {
-    height: 0;
-    margin: 0;
-    overflow: hidden;
-    position: absolute;
-}
 </style>
-"""
-
-# ---------------------------------------------------------------------------
-# JavaScript template for live typing + in-field copy buttons
-# ---------------------------------------------------------------------------
-# Placeholders:
-#   __TIPS__     → JSON object {"copy": "...", "copied": "..."}
-#   __DEBOUNCE__ → integer milliseconds
-
-JS_TEMPLATE: str = """
-<script>
-(function () {
-  const P = window.parent;
-  const doc = P.document;
-  const token = Math.random().toString(36).slice(2);
-
-  // Stop any previous injection so we don't accumulate listeners.
-  if (P.__odiaStop) {
-    try { P.__odiaStop(); } catch (e) {}
-  }
-  P.__odiaToken = token;
-
-  const TIP = __TIPS__;
-  const DEBOUNCE = __DEBOUNCE__;
-
-  const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" ' +
-    'height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
-  const ICON_COPY = SVG +
-    '<rect x="9" y="9" width="13" height="13" rx="2"/>' +
-    '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>' +
-    '</svg>';
-  const ICON_OK = SVG +
-    '<polyline points="20 6 9 17 4 12"/></svg>';
-
-  /** Fallback copy for browsers that block the Clipboard API. */
-  function fallbackCopy(text) {
-    const ta = doc.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.top = '0';
-    ta.style.left = '0';
-    ta.style.opacity = '0';
-    doc.body.appendChild(ta);
-    ta.select();
-    let ok = false;
-    try { ok = doc.execCommand('copy'); } catch (e) {}
-    doc.body.removeChild(ta);
-    return ok;
-  }
-
-  /** Copy the content of a text-area and give visual feedback. */
-  async function copyText(btn, box) {
-    const ta = box.querySelector('textarea');
-    const text = ta ? ta.value : '';
-    if (!text) return;
-
-    let ok = false;
-    try {
-      await P.navigator.clipboard.writeText(text);
-      ok = true;
-    } catch (e) {
-      ok = fallbackCopy(text);
-    }
-    if (!ok) return;
-
-    btn.innerHTML = ICON_OK;
-    btn.title = TIP.copied;
-    btn.classList.add('done');
-    clearTimeout(btn._resetTimer);
-    btn._resetTimer = setTimeout(function () {
-      btn.innerHTML = ICON_COPY;
-      btn.title = TIP.copy;
-      btn.classList.remove('done');
-    }, 1200);
-  }
-
-  /** Ensure a floating copy button exists on the given container. */
-  function ensureCopy(box) {
-    let btn = box.querySelector('.odia-copy');
-    // Recreate if the token has changed (new script injection).
-    if (btn && btn.dataset.token !== token) {
-      btn.remove();
-      btn = null;
-    }
-    if (!btn) {
-      btn = doc.createElement('button');
-      btn.type = 'button';
-      btn.className = 'odia-copy';
-      btn.dataset.token = token;
-      btn.innerHTML = ICON_COPY;
-      btn.addEventListener('click', function () { copyText(btn, box); });
-      box.appendChild(btn);
-    }
-    if (!btn.classList.contains('done')) {
-      btn.title = TIP.copy;
-      btn.setAttribute('aria-label', TIP.copy);
-    }
-  }
-
-  /**
-   * While a keystroke is waiting to be converted, mark the page as
-   * "pending" so the Download button cannot export stale data. The mark
-   * is lifted once the output text changes, or after a safety timeout.
-   */
-  let pendingOutput = null;
-  let pendingDeadline = 0;
-
-  function outputValue() {
-    const out = doc.querySelector('.st-key-output_box textarea');
-    return out ? out.value : '';
-  }
-
-  function markPending() {
-    pendingOutput = outputValue();
-    pendingDeadline = Date.now() + DEBOUNCE + 3000;
-    doc.body.setAttribute('data-odia-pending', '1');
-  }
-
-  function clearPending() {
-    pendingOutput = null;
-    doc.body.removeAttribute('data-odia-pending');
-  }
-
-  function checkPending() {
-    if (pendingOutput === null) return;
-    if (outputValue() !== pendingOutput || Date.now() > pendingDeadline) {
-      clearPending();
-    }
-  }
-
-  /**
-   * Attach a debounced "Ctrl+Enter" keydown so Streamlit re-runs
-   * while the user is typing.
-   *
-   * The listeners are bound to the current script injection. When the
-   * script is re-injected (e.g. UI language change) the old iframe is
-   * destroyed together with its timers, so the previous listeners are
-   * removed here and fresh ones are attached.
-   */
-  function ensureLive(ta) {
-    if (ta.dataset.odiaLive === token) return;
-    if (ta.__odiaCleanup) {
-      try { ta.__odiaCleanup(); } catch (e) {}
-    }
-    ta.dataset.odiaLive = token;
-    let timer = null;
-    let composing = false;
-    let dirty = false;
-
-    function schedule() {
-      if (P.__odiaToken !== token || composing) return;
-      dirty = true;
-      markPending();
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        dirty = false;
-        // Streamlit accepts Ctrl+Enter or Cmd+Enter; set both so this
-        // works on every platform.
-        ta.dispatchEvent(new P.KeyboardEvent('keydown', {
-          key: 'Enter',
-          code: 'Enter',
-          keyCode: 13,
-          which: 13,
-          ctrlKey: true,
-          metaKey: true,
-          bubbles: true,
-          cancelable: true
-        }));
-      }, DEBOUNCE);
-    }
-
-    // Odia keyboards / input tools compose characters in several steps.
-    // Wait until composition ends so we never rerun mid-character.
-    function onCompositionStart() {
-      composing = true;
-      clearTimeout(timer);
-    }
-    function onCompositionEnd() {
-      composing = false;
-      schedule();
-    }
-    function onInput(e) {
-      if (e.isComposing) return;
-      schedule();
-    }
-    // Leaving the field commits the text immediately, so the pending
-    // debounce would only cause a redundant second rerun.
-    function onBlur() {
-      clearTimeout(timer);
-      if (dirty) {
-        dirty = false;
-        markPending();
-      }
-    }
-
-    ta.addEventListener('compositionstart', onCompositionStart);
-    ta.addEventListener('compositionend', onCompositionEnd);
-    ta.addEventListener('input', onInput);
-    ta.addEventListener('blur', onBlur);
-
-    ta.__odiaCleanup = function () {
-      clearTimeout(timer);
-      ta.removeEventListener('compositionstart', onCompositionStart);
-      ta.removeEventListener('compositionend', onCompositionEnd);
-      ta.removeEventListener('input', onInput);
-      ta.removeEventListener('blur', onBlur);
-    };
-  }
-
-  /**
-   * Keep the output selectable (Firefox blocks selection inside disabled
-   * text areas) while still preventing edits.
-   */
-  function ensureReadOnly(ta) {
-    if (!ta.readOnly) ta.readOnly = true;
-  }
-
-  function tick() {
-    const src = doc.querySelector('.st-key-source');
-    const out = doc.querySelector('.st-key-output_box');
-    if (src) {
-      ensureCopy(src);
-      const ta = src.querySelector('textarea');
-      if (ta) ensureLive(ta);
-    }
-    if (out) {
-      ensureCopy(out);
-      const ota = out.querySelector('textarea');
-      if (ota) ensureReadOnly(ota);
-    }
-    checkPending();
-  }
-
-  tick();
-  const id = setInterval(tick, 400);
-  P.__odiaStop = function () {
-    clearInterval(id);
-    doc.body.removeAttribute('data-odia-pending');
-  };
-})();
-</script>
 """

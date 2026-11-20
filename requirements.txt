@@ -1,2 +1,2 @@
-streamlit>=1.56
-odiatranslit
+streamlit>=1.66
+odiatranslit>=0.1.0

@@ -2,12 +2,11 @@
 
 Contains pure utilities for timestamps, download payloads, package-version
 lookup, the core transliteration wrapper, character/word counting, and the
-JavaScript injector used for live typing and in-field copy buttons.
+small text utilities used by the front end.
 """
 
 from __future__ import annotations
 
-import json
 import unicodedata
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
@@ -19,16 +18,14 @@ from app_constants import (
     APP_TZ_NAME,
     APP_UTC_OFFSET_MINUTES,
     DIRECTION_FILE_LABELS,
+    TOOL_URL,
     GITHUB_URL,
-    JS_TEMPLATE,
-    LIVE_DEBOUNCE_MS,
     O2R,
     PACKAGE_NAME,
     REVERSIBLE_SCHEMES,
     SCHEME_LABELS,
 )
 
-# Fixed-offset zone
 _TZ = timezone(timedelta(minutes=APP_UTC_OFFSET_MINUTES), APP_TZ_NAME)
 
 _ZWNJ = "\u200c"
@@ -37,7 +34,7 @@ _ODIA_VIRAMA = "\u0b4d"
 
 
 def _now() -> datetime:
-    """Return the current time in the app's configured time zone."""
+    """Current time in the app time zone."""
     return datetime.now(_TZ)
 
 
@@ -47,27 +44,7 @@ def make_timestamp(
     compact: bool = False,
     include_ms: bool = False,
 ) -> str:
-    """Return a filesystem-safe timestamp string in the app's time zone.
-
-    Args:
-        date_only (bool, optional): If True, return only the date portion.
-            Defaults to False.
-        compact (bool, optional): If True, omit hyphens/colons (useful for
-            filenames). Defaults to False.
-        include_ms (bool, optional): If True (and not ``date_only``), append
-            the milliseconds. Defaults to False.
-
-    Returns:
-        str: The formatted timestamp.
-
-    Examples:
-        >>> make_timestamp()  # doctest: +SKIP
-        '2026-11-17_22-38-01'
-        >>> make_timestamp(compact=True)  # doctest: +SKIP
-        '20261117_223801'
-        >>> make_timestamp(date_only=True, compact=True)  # doctest: +SKIP
-        '20261117'
-    """
+    """Filesystem-safe timestamp in the app time zone."""
     now = _now()
     if date_only:
         fmt = "%Y%m%d" if compact else "%Y-%m-%d"
@@ -81,12 +58,13 @@ def make_timestamp(
 
 
 def make_conversion_stamp() -> str:
-    """Return the current time as ``YYYYMMDDTHHMMSS <TZ>``, e.g.
-    ``20261118T094512 IST``.
+    """Current time as ``YYYY-MM-DD HH:MM:SS <TZ>``."""
+    return _now().strftime("%Y-%m-%d %H:%M:%S %Z")
 
-    The zone name is included so the recorded time is unambiguous.
-    """
-    return _now().strftime("%Y%m%dT%H%M%S %Z")
+
+def _section(title: str) -> str:
+    """Return a plain-text heading underlined to its own length."""
+    return f"{title}\n{'-' * len(title)}\n"
 
 
 def build_download_text(
@@ -97,24 +75,30 @@ def build_download_text(
     reversible: bool = False,
 ) -> str:
     """Assemble the plain-text payload for the download button."""
+    title = "Odia Transliterate - Conversion Record"
     mode = "Reversible" if reversible else "Standard"
+    details = [
+        ("Direction", DIRECTION_FILE_LABELS[direction]),
+        ("Scheme", SCHEME_LABELS[scheme]),
+        ("Mode", mode),
+        ("Converted", make_conversion_stamp()),
+        ("Library", f"{PACKAGE_NAME} v{package_version()}"),
+        ("Tool", TOOL_URL),
+        ("Source", GITHUB_URL),
+    ]
+    width = max(len(label) for label, _ in details) + 2
+    detail_lines = "\n".join(f"{label:<{width}}: {value}" for label, value in details)
     return (
-        f"Input:\n{source}\n\n"
-        f"Output:\n{output}\n\n\n\n"
-        f"Conversion: {DIRECTION_FILE_LABELS[direction]}\n"
-        f"Scheme: {SCHEME_LABELS[scheme]}\n"
-        f"Mode: {mode}\n"
-        f"Conversion happened at: {make_conversion_stamp()}\n"
-        f"Source: {GITHUB_URL}\n"
+        f"{title}\n{'=' * len(title)}\n\n"
+        f"{_section('INPUT')}{source}\n\n"
+        f"{_section('OUTPUT')}{output}\n\n\n"
+        f"{_section('DETAILS')}{detail_lines}\n"
     )
 
 
 @lru_cache(maxsize=1)
 def package_version() -> str:
-    """Return the installed version of ``odiatranslit``, or ``"unknown"``.
-
-    Cached because the installed version cannot change while the app runs.
-    """
+    """Installed version of ``odiatranslit``, or ``"unknown"``."""
     try:
         return version(PACKAGE_NAME)
     except PackageNotFoundError:
@@ -122,29 +106,28 @@ def package_version() -> str:
 
 
 def effective_reversible(direction: str, scheme: str, reversible: bool) -> bool:
-    """Return True only when reversible mode is meaningful for this setup
-    (Odia → Roman with a scheme that supports it)."""
+    """``True`` only when reversible mode applies (O2R + supported scheme)."""
     return bool(reversible) and direction == O2R and scheme in REVERSIBLE_SCHEMES
 
 
 def has_content(text: str) -> bool:
-    """Return True if ``text`` has any non-whitespace content."""
+    """``True`` if ``text`` has non-whitespace content."""
     return bool(text and text.strip())
 
 
 def contains_odia(text: str) -> bool:
-    """Return True if ``text`` contains any character from the Odia block."""
+    """``True`` if ``text`` contains any Odia-block character."""
     return any("\u0b00" <= ch <= "\u0b7f" for ch in text)
 
 
-@lru_cache(maxsize=8)
+@lru_cache(maxsize=16)
 def convert(
     text: str,
     direction: str,
     scheme: str,
     reversible: bool = False,
 ) -> str:
-    """Transliterate ``text`` according to the chosen direction and scheme.
+    """Transliterate ``text`` for the given direction and scheme.
 
     Args:
         text (str): Source text (Odia or Roman).
@@ -157,8 +140,7 @@ def convert(
 
     Returns:
         str: The transliterated string, or an empty string when ``text`` is
-        empty or whitespace-only. Results are cached (small LRU) because the
-        page reruns on every live keystroke.
+        empty or whitespace-only.
     """
     if not has_content(text):
         return ""
@@ -166,89 +148,68 @@ def convert(
     if direction == O2R:
         return to_roman(text, scheme=scheme, reversible=reversible)
 
-    # Roman → Odia never uses the reversible flag.
     return from_roman(text, scheme=scheme)
 
 
 @lru_cache(maxsize=16)
 def demo_conversion(text: str, scheme: str) -> str | None:
-    """Return the Odia → Roman conversion of a fixed demo text, or ``None``
-    if the library fails. Cached because the inputs never change.
-    """
+    """Odia → Roman demo conversion, or None on failure."""
     try:
-        return convert(text, O2R, scheme)
-    except Exception:  # noqa: BLE001 - a broken preview must not crash the page
+        return to_roman(text, scheme=scheme)
+    except Exception:  # noqa: BLE001
         return None
 
 
 def error_message(exc: BaseException) -> str:
-    """Return a non-empty, readable message for ``exc``.
-
-    ``str(exc)`` is empty for exceptions raised without arguments
-    (e.g. ``ValueError()``), so fall back to the exception class name.
-    """
+    """Readable message for an exception."""
     return str(exc).strip() or type(exc).__name__
 
 
 def _is_odia_consonant(ch: str) -> bool:
-    """Return True for Odia consonant letters (including ଡ଼ ଢ଼ ୟ ୱ)."""
+    """``True`` for Odia consonant letters (including ଡ଼ ଢ଼ ୟ ୱ)."""
     return "\u0b15" <= ch <= "\u0b39" or ch in "\u0b5c\u0b5d\u0b5f\u0b71"
 
 
+def _is_regional_indicator(ch: str) -> bool:
+    """``True`` for a Unicode regional indicator."""
+    return "\U0001f1e6" <= ch <= "\U0001f1ff"
+
+
 def _joins_previous(ch: str, prev: str) -> bool:
-    """Return True if ``ch`` belongs to the same visible character as the
-    character before it."""
+    """``True`` if ``ch`` belongs to the same visible character as prev."""
     if ch in (_ZWNJ, _ZWJ):
         return True
-    if unicodedata.category(ch).startswith("M"):  # vowel signs, nukta, virama…
+    if unicodedata.category(ch).startswith("M"):
         return True
-    # Consonant after a virama forms a conjunct, e.g. କ୍ଷ, ତ୍ର. Only Odia
-    # consonants qualify, so କ୍a or କ୍अ are not merged.
     if prev == _ODIA_VIRAMA and _is_odia_consonant(ch):
         return True
-    # Symbol/emoji after a ZWJ continues an emoji sequence (👨‍👩‍👧).
     if prev == _ZWJ and unicodedata.category(ch).startswith("S"):
         return True
-    return prev == "\r" and ch == "\n"
+    if prev == "\r" and ch == "\n":
+        return True
+    return False
 
 
 def count_characters(text: str) -> int:
-    """Count user-perceived characters rather than code points.
-
-    ``len()`` counts code points, so ଓଡ଼ିଆ would count as 5. Here combining
-    marks, zero-width joiners and virama conjuncts are folded into the
-    character they belong to, so ଓଡ଼ିଆ counts as 3 and କ୍ଷ as 1.
-    """
+    """Count user-perceived characters (not code points)."""
     count = 0
     prev = ""
+    consecutive_indicators = 0
     for ch in text:
-        if not prev or not _joins_previous(ch, prev):
-            count += 1
+        if _is_regional_indicator(ch):
+            if consecutive_indicators % 2 == 0:
+                count += 1
+            consecutive_indicators += 1
+        else:
+            consecutive_indicators = 0
+            if not prev or not _joins_previous(ch, prev):
+                count += 1
         prev = ch
     return count
 
 
 def count_label(text: str, chars_label: str, words_label: str) -> str:
-    """Return a human-readable ``"N characters • M words"`` caption.
-
-    Empty or whitespace-only text is reported as zero words.
-    """
+    """Return ``"N characters • M words"`` caption."""
     n_chars = count_characters(text)
     n_words = len(text.split()) if text.strip() else 0
     return f"{n_chars} {chars_label} • {n_words} {words_label}"
-
-
-def live_copy_script(copy_tip: str, copied_tip: str) -> str:
-    """Return the fully-substituted JavaScript that powers live typing,
-    the floating copy buttons, and the read-only output box.
-
-    The returned HTML fragment is injected via ``st.iframe`` (or
-    ``components.html`` on older Streamlit versions).
-    """
-    tips_json = json.dumps({"copy": copy_tip, "copied": copied_tip})
-    script = JS_TEMPLATE.replace("__TIPS__", tips_json).replace(
-        "__DEBOUNCE__", str(LIVE_DEBOUNCE_MS)
-    )
-    # Strip so the string starts with "<script>" (some iframe helpers sniff
-    # the first character to decide between a URL and an HTML string).
-    return script.strip()
