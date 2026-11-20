@@ -7,17 +7,12 @@ from typing import Any
 
 import streamlit as st
 
-_HTML = """
-<div class="live-input">
-  <textarea spellcheck="false"></textarea>
-  <div class="toolbar">
-    <button type="button" class="copy-btn"></button>
-  </div>
-</div>
-"""
+# ---------------------------------------------------------------------------
+# Live text input
+# ---------------------------------------------------------------------------
+_INPUT_HTML = '<textarea spellcheck="false"></textarea>'
 
-_CSS = """
-.live-input { display: flex; flex-direction: column; gap: 6px; }
+_INPUT_CSS = """
 textarea {
   display: block; box-sizing: border-box; width: 100%;
   padding: 12px; resize: vertical; border-radius: 8px;
@@ -26,19 +21,9 @@ textarea {
   font: inherit; font-size: 1.05rem; line-height: 1.7;
 }
 textarea:focus-visible { outline: 2px solid var(--st-primary-color); outline-offset: 1px; }
-.toolbar { display: flex; justify-content: flex-end; }
-.copy-btn {
-  font: inherit; font-size: 0.85rem; cursor: pointer;
-  padding: 4px 12px; border-radius: 6px;
-  border: 1px solid var(--st-border-color, #888);
-  color: var(--st-text-color); background: transparent;
-}
-.copy-btn:hover:not(:disabled) { border-color: var(--st-primary-color); }
-.copy-btn:focus-visible { outline: 2px solid var(--st-primary-color); outline-offset: 1px; }
-.copy-btn:disabled { opacity: 0.5; cursor: default; }
 """
 
-_JS = """
+_INPUT_JS = """
 const DEBOUNCE_MS = 400;
 
 // Trim to `limit` Unicode code points (not UTF-16 units), matching Python's len().
@@ -47,25 +32,9 @@ function clampCodePoints(text, limit) {
   return points.length > limit ? points.slice(0, limit).join('') : text;
 }
 
-async function copyText(text, input) {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch (err) {
-    // Fallback for browsers or contexts that block the Clipboard API.
-    const start = input.selectionStart, end = input.selectionEnd;
-    input.select();
-    let ok = false;
-    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-    input.setSelectionRange(start, end);
-    return ok;
-  }
-}
-
 export default function({ parentElement, data, setStateValue }) {
   const input = parentElement.querySelector('textarea');
-  const copyBtn = parentElement.querySelector('.copy-btn');
-  if (!input || !copyBtn) return;
+  if (!input) return;
 
   const incoming = String(data.value ?? '');
   const revision = String(Number(data.revision ?? 0));
@@ -76,13 +45,11 @@ export default function({ parentElement, data, setStateValue }) {
   input.setAttribute('aria-label', String(data.label ?? 'Input'));
   input.style.height = height + 'px';
   input.style.minHeight = height + 'px';
-  copyBtn.setAttribute('aria-label', String(data.copyLabel ?? 'Copy'));
 
   // Per-element state survives reruns because the DOM node is reused.
   const s = input._live || (input._live = {
     timer: null, composing: false, pending: false, committed: null,
   });
-  // Always use the newest setter from the latest render.
   s.send = setStateValue;
 
   const setPending = (flag) => {
@@ -109,10 +76,7 @@ export default function({ parentElement, data, setStateValue }) {
     s.timer = setTimeout(commit, DEBOUNCE_MS);
   };
 
-  const refreshCopy = () => { copyBtn.disabled = input.value.trim() === ''; };
-
   // A Python-side change (Clear, Swap, Example) has priority over typing.
-  // Unrelated reruns keep whatever the user is typing.
   if (input.dataset.revision === undefined) {
     input.value = incoming;
     s.committed = incoming;
@@ -121,8 +85,6 @@ export default function({ parentElement, data, setStateValue }) {
     s.timer = null;
     s.composing = false;
     input.value = incoming;
-    // Keep the component state in step so a later edit is not mistaken
-    // for "no change".
     if (s.committed !== incoming) {
       s.committed = incoming;
       s.send('value', incoming);
@@ -130,13 +92,8 @@ export default function({ parentElement, data, setStateValue }) {
     setPending(false);
   }
   input.dataset.revision = revision;
-  refreshCopy();
-
-  s.copyIdle = String(data.copyLabel ?? 'Copy');
-  if (!s.copyFlash) copyBtn.textContent = s.copyIdle;
 
   const onInput = (event) => {
-    refreshCopy();
     if (s.composing || event.isComposing) {
       setPending(true);
       return;
@@ -161,37 +118,28 @@ export default function({ parentElement, data, setStateValue }) {
     s.composing = false;
     commit();
   };
-  const onCopy = async () => {
-    const ok = await copyText(input.value, input);
-    if (!ok) return;
-    copyBtn.textContent = String(data.copiedLabel ?? 'Copied!');
-    if (s.copyFlash) clearTimeout(s.copyFlash);
-    s.copyFlash = setTimeout(() => {
-      s.copyFlash = null;
-      copyBtn.textContent = s.copyIdle;
-    }, 1500);
-  };
 
   input.addEventListener('input', onInput);
   input.addEventListener('compositionstart', onCompositionStart);
   input.addEventListener('compositionend', onCompositionEnd);
   input.addEventListener('blur', onBlur);
-  copyBtn.addEventListener('click', onCopy);
 
-  // Only listeners are removed here. A pending debounce timer is left
-  // running on purpose so a rerun in the middle of typing cannot drop it.
+  // Only listeners are removed; a pending debounce timer keeps running so a
+  // rerun in the middle of typing cannot drop it.
   return () => {
     input.removeEventListener('input', onInput);
     input.removeEventListener('compositionstart', onCompositionStart);
     input.removeEventListener('compositionend', onCompositionEnd);
     input.removeEventListener('blur', onBlur);
-    copyBtn.removeEventListener('click', onCopy);
   };
 }
 """
 
 _INPUT = st.components.v2.component(
-    "odia_transliterate_live_input", html=_HTML, css=_CSS, js=_JS
+    "odia_transliterate_live_input",
+    html=_INPUT_HTML,
+    css=_INPUT_CSS,
+    js=_INPUT_JS,
 )
 
 
@@ -207,8 +155,6 @@ def live_input(
     label: str,
     max_chars: int,
     height: int,
-    copy_label: str,
-    copied_label: str,
     on_change: Callable[[], None],
     key: str = "live_source",
 ) -> Any:
@@ -222,10 +168,134 @@ def live_input(
             "label": label,
             "limit": max_chars,
             "height": height,
-            "copyLabel": copy_label,
-            "copiedLabel": copied_label,
         },
         default={"value": value, "pending": False},
         on_value_change=on_change,
         on_pending_change=_noop,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Copy button (styled to match Streamlit's secondary buttons)
+# ---------------------------------------------------------------------------
+_ICON_COPY = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18q-.82 0-1.41-.59T7 16V4'
+    "q0-.82.59-1.41T9 2h9q.82 0 1.41.59T20 4v12q0 .82-.59 1.41T18 18zm0-2h9V4H9zm-4 6"
+    'q-.82 0-1.41-.59T3 20V6h2v14h11v2zm4-6V4z"/></svg>'
+)
+_ICON_DONE = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true">'
+    '<path d="m9.55 18-5.7-5.7 1.43-1.43 4.27 4.28 9.18-9.18 1.42 1.43z"/></svg>'
+)
+
+_COPY_HTML = '<button type="button" class="copy-btn"><span class="icon"></span><span class="label"></span></button>'
+
+# Matches st.button: 2.5rem min-height, 0.5rem radius, 1px border.
+_COPY_CSS = """
+.copy-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  box-sizing: border-box; min-height: 2.5rem; margin: 0;
+  padding: 0.25rem 0.75rem; border-radius: 0.5rem;
+  border: 1px solid var(--st-border-color, rgba(250, 250, 250, 0.2));
+  background: var(--st-secondary-background-color, transparent);
+  color: var(--st-text-color); font: inherit; font-size: 1rem;
+  line-height: 1.6; white-space: nowrap; cursor: pointer; user-select: none;
+}
+.copy-btn:hover:not(:disabled) {
+  border-color: var(--st-primary-color); color: var(--st-primary-color);
+}
+.copy-btn:focus-visible { outline: 2px solid var(--st-primary-color); outline-offset: 1px; }
+.copy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+@media (max-width: 640px) { .copy-btn { min-height: 2.75rem; } }
+.icon { display: inline-flex; width: 1.1rem; height: 1.1rem; }
+.icon svg { width: 100%; height: 100%; fill: currentColor; }
+"""
+
+_COPY_JS = f"""
+const ICON_COPY = {_ICON_COPY!r};
+const ICON_DONE = {_ICON_DONE!r};
+
+async function writeClipboard(text) {{
+  try {{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }} catch (err) {{
+    // Fallback for browsers or contexts that block the Clipboard API.
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'absolute';
+    area.style.left = '-9999px';
+    document.body.appendChild(area);
+    area.select();
+    let ok = false;
+    try {{ ok = document.execCommand('copy'); }} catch (e) {{ ok = false; }}
+    area.remove();
+    return ok;
+  }}
+}}
+
+export default function({{ parentElement, data }}) {{
+  const btn = parentElement.querySelector('.copy-btn');
+  if (!btn) return;
+  const icon = btn.querySelector('.icon');
+  const label = btn.querySelector('.label');
+
+  const text = String(data.text ?? '');
+  const idle = String(data.label ?? 'Copy');
+  const done = String(data.copiedLabel ?? 'Copied!');
+
+  const s = btn._copy || (btn._copy = {{ flash: null }});
+  btn.disabled = Boolean(data.disabled) || text.trim() === '';
+  btn.title = String(data.help ?? idle);
+  btn.setAttribute('aria-label', btn.title);
+  if (!s.flash) {{
+    icon.innerHTML = ICON_COPY;
+    label.textContent = idle;
+  }}
+
+  const onClick = async () => {{
+    if (!(await writeClipboard(text))) return;
+    icon.innerHTML = ICON_DONE;
+    label.textContent = done;
+    if (s.flash) clearTimeout(s.flash);
+    s.flash = setTimeout(() => {{
+      s.flash = null;
+      icon.innerHTML = ICON_COPY;
+      label.textContent = idle;
+    }}, 1500);
+  }};
+  btn.addEventListener('click', onClick);
+  return () => btn.removeEventListener('click', onClick);
+}}
+"""
+
+_COPY = st.components.v2.component(
+    "odia_transliterate_copy_button",
+    html=_COPY_HTML,
+    css=_COPY_CSS,
+    js=_COPY_JS,
+)
+
+
+def copy_button(
+    *,
+    text: str,
+    label: str,
+    copied_label: str,
+    help: str,
+    disabled: bool = False,
+    key: str = "btn_copy",
+) -> Any:
+    """Mount a copy-to-clipboard button sized like ``st.button``."""
+    return _COPY(
+        key=key,
+        data={
+            "text": text,
+            "label": label,
+            "copiedLabel": copied_label,
+            "help": help,
+            "disabled": disabled,
+        },
+        width="content",
     )

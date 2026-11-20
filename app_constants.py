@@ -52,7 +52,6 @@ DIRECTION_FILE_LABELS: dict[str, str] = {
 
 SCHEMES: list[str] = ["ISO15919", "Hunterian", "ITRANS"]
 REVERSIBLE_SCHEMES: set[str] = {"ISO15919", "ITRANS"}
-
 SCHEME_LABELS: dict[str, str] = {
     "ISO15919": "ISO 15919",
     "Hunterian": "Hunterian",
@@ -113,14 +112,14 @@ TEXT: dict[str, dict[str, str]] = {
         "input_aria": "Enter or paste your text",
         "chars": "characters",
         "words": "words",
-        "copy": "Copy to clipboard",
+        "copy": "Copy input to clipboard",
+        "btn_copy": "Copy",
         "copied": "Copied!",
         "updating": "Updating…",
         "clear": "Clear input",
         "swap": "Use output as input and swap direction",
         "dl": "Download input and output as .txt",
         "tab_how": "How to use",
-        "tab_guide": "Scheme guide",
         "tab_python": "Python usage",
         "tab_about": "About",
         "how": (
@@ -257,14 +256,14 @@ TEXT: dict[str, dict[str, str]] = {
         "input_aria": "ଆପଣଙ୍କ ଲେଖା ଟାଇପ୍ କିମ୍ବା ପେଷ୍ଟ କରନ୍ତୁ",
         "chars": "ଅକ୍ଷର",
         "words": "ଶବ୍ଦ",
-        "copy": "କ୍ଲିପବୋର୍ଡକୁ କପି କରନ୍ତୁ",
+        "copy": "ଇନପୁଟ୍ କ୍ଲିପବୋର୍ଡକୁ କପି କରନ୍ତୁ",
+        "btn_copy": "କପି",
         "copied": "କପି ହେଲା!",
         "updating": "ଅପଡେଟ୍ ହେଉଛି…",
         "clear": "ଇନପୁଟ୍ ଲିଭାନ୍ତୁ",
         "swap": "ଆଉଟପୁଟ୍‌କୁ ଇନପୁଟ୍ କରି ଦିଗ ବଦଳାନ୍ତୁ",
         "dl": "ଇନପୁଟ୍ ଓ ଆଉଟପୁଟ୍ .txt ଭାବେ ଡାଉନଲୋଡ୍ କରନ୍ତୁ",
         "tab_how": "ବ୍ୟବହାର ବିଧି",
-        "tab_guide": "ପଦ୍ଧତି ଗାଇଡ୍",
         "tab_python": "ପାଇଥନ୍ ବ୍ୟବହାର",
         "tab_about": "ବିଷୟରେ",
         "how": (
@@ -290,7 +289,9 @@ TEXT: dict[str, dict[str, str]] = {
         "btn_clear": "ଲିଭାନ୍ତୁ",
         "btn_swap": "ଦିଗ ବଦଳାନ୍ତୁ",
         "btn_dl": "ଡାଉନଲୋଡ୍",
-        "limit_reached": ("ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। ଏହାଠାରୁ ଅଧିକ ଲେଖା କଟିଯାଇଛି।"),
+        "limit_reached": (
+            "ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। ଏହାଠାରୁ ଅଧିକ ଲେଖା କଟିଯାଇଛି।"
+        ),
         "odia_in_roman_hint": (
             "ଇନପୁଟ୍‌ରେ ଓଡ଼ିଆ ଲିପି ଅଛି, କିନ୍ତୁ ଦିଗ ରୋମାନ୍ → ଓଡ଼ିଆ ଅଛି। ରୋମାନ୍‌କୁ ବଦଳାଇବାକୁ ଦିଗ ବଦଳାନ୍ତୁ।"
         ),
@@ -311,7 +312,9 @@ TEXT: dict[str, dict[str, str]] = {
             "ଲେଖା ଏହି ଆପ୍ ଦ୍ୱାରା ଅସ୍ଥାୟୀ ଭାବେ ପ୍ରକ୍ରିୟାକରଣ ହୁଏ, "
             "ଜାଣିଶୁଣି ସଂରକ୍ଷିତ ହୁଏ ନାହିଁ।"
         ),
-        "desc_ISO15919": ("ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"),
+        "desc_ISO15919": (
+            "ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"
+        ),
         "desc_Hunterian": ("ନାମ, ସ୍ଥାନ ଓ ସାଧାରଣ ଲେଖା ପାଇଁ ସହଜ ରୋମାନ୍ ବନାନ।"),
         "desc_ITRANS": ("କିବୋର୍ଡ ଅନୁକୂଳ, ASCII ଧାଡ଼ି ଆଧାରିତ ଲିପ୍ୟନ୍ତର।"),
         "ex_language": "ଓଡ଼ିଆ ଭାଷା",

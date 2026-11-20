@@ -44,7 +44,7 @@ from app_helpers import (
     make_timestamp,
     package_version,
 )
-from live_input import live_input
+from live_input import copy_button, live_input
 
 AUTHOR_URL = "https://github.com/srinibashsamal"
 LIVE_INPUT_KEY = "live_source"
@@ -155,6 +155,7 @@ def on_source_edit() -> None:
     if value != st.session_state.source:
         st.session_state.source = value
         st.session_state.scheme_hint = False
+    # Bump the revision so the input box shows the truncated text.
     if truncated:
         st.session_state.source_revision += 1
 
@@ -301,6 +302,7 @@ def render_controls(t: dict[str, str]) -> tuple[str, str, bool]:
 
     reversible = False
     if direction == O2R and scheme in REVERSIBLE_SCHEMES:
+        # Streamlit drops widget state while the toggle is hidden; restore it.
         if "reversible" not in st.session_state:
             st.session_state.reversible = st.session_state.reversible_pref
         reversible = st.toggle(
@@ -336,24 +338,11 @@ def render_panels(
             label=t["input_aria"],
             max_chars=MAX_CHARACTERS,
             height=PANEL_HEIGHT,
-            copy_label=t["copy"],
-            copied_label=t["copied"],
             on_change=on_source_edit,
             key=LIVE_INPUT_KEY,
         )
-        pending = bool((result or {}).get("pending", False))
-        source: str = st.session_state.source
-        if len(source) >= MAX_CHARACTERS:
-            st.warning(t["limit_reached"].format(limit=MAX_CHARACTERS))
-        with st.container(horizontal=True, vertical_alignment="center"):
-            st.button(
-                f":material/backspace: {t['btn_clear']}",
-                help=t["clear"],
-                disabled=not has_content(source),
-                on_click=clear_input,
-                key="btn_clear",
-            )
-            st.caption(count_label(source, t["chars"], t["words"]))
+    pending = bool((result or {}).get("pending", False))
+    source: str = st.session_state.source
 
     error: str | None = None
     try:
@@ -380,6 +369,32 @@ def render_panels(
 
         st.code(output or " ", language=None, wrap_lines=True, height=PANEL_HEIGHT)
 
+    # Toolbars are drawn after both panels so they sit on the same row.
+    with col_in:
+        if len(source) >= MAX_CHARACTERS:
+            st.warning(t["limit_reached"].format(limit=MAX_CHARACTERS))
+        with st.container(horizontal=True, vertical_alignment="center"):
+            st.button(
+                f":material/backspace: {t['btn_clear']}",
+                help=t["clear"],
+                disabled=not has_content(source),
+                on_click=clear_input,
+                key="btn_clear",
+            )
+            copy_button(
+                text=source,
+                label=t["btn_copy"],
+                copied_label=t["copied"],
+                help=t["copy"],
+                disabled=pending,
+                key="btn_copy",
+            )
+            if pending:
+                st.caption(t["updating"])
+            else:
+                st.caption(count_label(source, t["chars"], t["words"]))
+
+    with col_out:
         with st.container(horizontal=True, vertical_alignment="center"):
             st.button(
                 f":material/swap_horiz: {t['btn_swap']}",

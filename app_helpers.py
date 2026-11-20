@@ -81,7 +81,7 @@ def build_download_text(
         ("Direction", DIRECTION_FILE_LABELS[direction]),
         ("Scheme", SCHEME_LABELS[scheme]),
         ("Mode", mode),
-        ("Converted", make_conversion_stamp()),
+        ("Converted", f"{make_conversion_stamp()} (UTC+5:30)"),
         ("Library", f"{PACKAGE_NAME} v{package_version()}"),
         ("Tool", TOOL_URL),
         ("Source", GITHUB_URL),
@@ -91,7 +91,7 @@ def build_download_text(
     return (
         f"{title}\n{'=' * len(title)}\n\n"
         f"{_section('INPUT')}{source}\n\n"
-        f"{_section('OUTPUT')}{output}\n\n\n"
+        f"{_section('OUTPUT')}{output}\n\n\n\n"
         f"{_section('DETAILS')}{detail_lines}\n"
     )
 
