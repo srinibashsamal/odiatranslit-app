@@ -1,5 +1,12 @@
 # Odia Transliterate
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://odiatranslitor.streamlit.app/)
+[![PyPI](https://img.shields.io/pypi/v/odiatranslit?label=odiatranslit)](https://pypi.org/project/odiatranslit/)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/streamlit-1.66%2B-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Last commit](https://img.shields.io/github/last-commit/srinibashsamal/odiatranslit-app)](https://github.com/srinibashsamal/odiatranslit-app/commits)
+
 A small web app that converts **Odia script to Roman** and **Roman back to Odia**,
 built with [Streamlit](https://streamlit.io) on top of the
 [`odiatranslit`](https://pypi.org/project/odiatranslit/) library.
