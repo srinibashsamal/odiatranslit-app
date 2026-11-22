@@ -1,4 +1,4 @@
-"""Debounced, IME-aware text input for Streamlit Components v2."""
+"""Debounced text input and clipboard copy button for Streamlit Components v2."""
 
 from __future__ import annotations
 
@@ -7,9 +7,6 @@ from typing import Any
 
 import streamlit as st
 
-# ---------------------------------------------------------------------------
-# Live text input
-# ---------------------------------------------------------------------------
 _INPUT_HTML = '<textarea spellcheck="false"></textarea>'
 
 _INPUT_CSS = """
@@ -26,125 +23,121 @@ textarea:focus-visible { outline: 2px solid var(--st-primary-color); outline-off
 _INPUT_JS = """
 const DEBOUNCE_MS = 400;
 
-// Trim to `limit` Unicode code points (not UTF-16 units), matching Python's len().
+// Clamp by Unicode code points instead of UTF-16 units to match Python's len().
 function clampCodePoints(text, limit) {
-  const points = Array.from(text);
-  return points.length > limit ? points.slice(0, limit).join('') : text;
+  const codePoints = Array.from(text);
+  return codePoints.length > limit ? codePoints.slice(0, limit).join('') : text;
 }
 
 export default function({ parentElement, data, setStateValue }) {
-  const input = parentElement.querySelector('textarea');
-  if (!input) return;
+  const textarea = parentElement.querySelector('textarea');
+  if (!textarea) return;
 
   const incoming = String(data.value ?? '');
   const revision = String(Number(data.revision ?? 0));
   const limit = Math.max(1, Number(data.limit) || 50000);
   const height = Math.max(80, Number(data.height) || 200);
 
-  input.placeholder = String(data.placeholder ?? '');
-  input.setAttribute('aria-label', String(data.label ?? 'Input'));
-  input.style.height = height + 'px';
-  input.style.minHeight = height + 'px';
+  textarea.placeholder = String(data.placeholder ?? '');
+  textarea.setAttribute('aria-label', String(data.label ?? 'Input'));
+  textarea.style.height = height + 'px';
+  textarea.style.minHeight = height + 'px';
 
-  // Per-element state survives reruns because the DOM node is reused.
-  const s = input._live || (input._live = {
+  // Store state on the DOM node so it survives Streamlit reruns.
+  const editorState = textarea._live || (textarea._live = {
     timer: null, composing: false, pending: false, committed: null,
   });
-  s.send = setStateValue;
+  editorState.send = setStateValue;
 
   const setPending = (flag) => {
-    if (s.pending === flag) return;
-    s.pending = flag;
-    s.send('pending', flag);
+    if (editorState.pending === flag) return;
+    editorState.pending = flag;
+    editorState.send('pending', flag);
   };
 
   const commit = () => {
-    if (s.timer) clearTimeout(s.timer);
-    s.timer = null;
-    if (s.composing) return;  // never send half-composed IME text
-    const value = clampCodePoints(input.value, limit);
-    if (value !== input.value) input.value = value;
-    if (value !== s.committed) {
-      s.committed = value;
-      s.send('value', value);
+    if (editorState.timer) clearTimeout(editorState.timer);
+    editorState.timer = null;
+    // Wait until IME composition finishes before sending text.
+    if (editorState.composing) return;
+    const value = clampCodePoints(textarea.value, limit);
+    if (value !== textarea.value) textarea.value = value;
+    if (value !== editorState.committed) {
+      editorState.committed = value;
+      editorState.send('value', value);
     }
     setPending(false);
   };
 
   const schedule = () => {
-    if (s.timer) clearTimeout(s.timer);
-    s.timer = setTimeout(commit, DEBOUNCE_MS);
+    if (editorState.timer) clearTimeout(editorState.timer);
+    editorState.timer = setTimeout(commit, DEBOUNCE_MS);
   };
 
-  // A Python-side change (Clear, Swap, Example) has priority over typing.
-  if (input.dataset.revision === undefined) {
-    input.value = incoming;
-    s.committed = incoming;
-  } else if (input.dataset.revision !== revision) {
-    if (s.timer) clearTimeout(s.timer);
-    s.timer = null;
-    s.composing = false;
-    input.value = incoming;
-    if (s.committed !== incoming) {
-      s.committed = incoming;
-      s.send('value', incoming);
+  // Python-side updates (Clear, Swap, Example) override local typing.
+  if (textarea.dataset.revision === undefined) {
+    textarea.value = incoming;
+    editorState.committed = incoming;
+  } else if (textarea.dataset.revision !== revision) {
+    if (editorState.timer) clearTimeout(editorState.timer);
+    editorState.timer = null;
+    editorState.composing = false;
+    textarea.value = incoming;
+    if (editorState.committed !== incoming) {
+      editorState.committed = incoming;
+      editorState.send('value', incoming);
     }
     setPending(false);
   }
-  input.dataset.revision = revision;
+  textarea.dataset.revision = revision;
 
   const onInput = (event) => {
-    if (s.composing || event.isComposing) {
+    if (editorState.composing || event.isComposing) {
       setPending(true);
       return;
     }
-    const clamped = clampCodePoints(input.value, limit);
-    if (clamped !== input.value) input.value = clamped;
+    const clamped = clampCodePoints(textarea.value, limit);
+    if (clamped !== textarea.value) textarea.value = clamped;
     setPending(true);
     schedule();
   };
   const onCompositionStart = () => {
-    s.composing = true;
-    if (s.timer) clearTimeout(s.timer);
-    s.timer = null;
+    editorState.composing = true;
+    if (editorState.timer) clearTimeout(editorState.timer);
+    editorState.timer = null;
     setPending(true);
   };
   const onCompositionEnd = () => {
-    s.composing = false;
+    editorState.composing = false;
     setPending(true);
     schedule();
   };
   const onBlur = () => {
-    s.composing = false;
+    editorState.composing = false;
     commit();
   };
 
-  input.addEventListener('input', onInput);
-  input.addEventListener('compositionstart', onCompositionStart);
-  input.addEventListener('compositionend', onCompositionEnd);
-  input.addEventListener('blur', onBlur);
+  textarea.addEventListener('input', onInput);
+  textarea.addEventListener('compositionstart', onCompositionStart);
+  textarea.addEventListener('compositionend', onCompositionEnd);
+  textarea.addEventListener('blur', onBlur);
 
-  // Only listeners are removed; a pending debounce timer keeps running so a
-  // rerun in the middle of typing cannot drop it.
+  // Remove listeners only. Keep any active timer so mid-typing reruns do not drop it.
   return () => {
-    input.removeEventListener('input', onInput);
-    input.removeEventListener('compositionstart', onCompositionStart);
-    input.removeEventListener('compositionend', onCompositionEnd);
-    input.removeEventListener('blur', onBlur);
+    textarea.removeEventListener('input', onInput);
+    textarea.removeEventListener('compositionstart', onCompositionStart);
+    textarea.removeEventListener('compositionend', onCompositionEnd);
+    textarea.removeEventListener('blur', onBlur);
   };
 }
 """
 
-_INPUT = st.components.v2.component(
+_INPUT_COMPONENT = st.components.v2.component(
     "odia_transliterate_live_input",
     html=_INPUT_HTML,
     css=_INPUT_CSS,
     js=_INPUT_JS,
 )
-
-
-def _noop() -> None:
-    """No-op for pending changes."""
 
 
 def live_input(
@@ -158,8 +151,7 @@ def live_input(
     on_change: Callable[[], None],
     key: str = "live_source",
 ) -> Any:
-    """Mount the live input; returns ``value`` and ``pending``."""
-    return _INPUT(
+    return _INPUT_COMPONENT(
         key=key,
         data={
             "value": value,
@@ -171,13 +163,10 @@ def live_input(
         },
         default={"value": value, "pending": False},
         on_value_change=on_change,
-        on_pending_change=_noop,
+        on_pending_change=lambda: None,
     )
 
 
-# ---------------------------------------------------------------------------
-# Copy button (styled to match Streamlit's secondary buttons)
-# ---------------------------------------------------------------------------
 _ICON_COPY = (
     '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18q-.82 0-1.41-.59T7 16V4'
     "q0-.82.59-1.41T9 2h9q.82 0 1.41.59T20 4v12q0 .82-.59 1.41T18 18zm0-2h9V4H9zm-4 6"
@@ -190,7 +179,7 @@ _ICON_DONE = (
 
 _COPY_HTML = '<button type="button" class="copy-btn"><span class="icon"></span><span class="label"></span></button>'
 
-# Matches st.button: 2.5rem min-height, 0.5rem radius, 1px border.
+# Match st.button height, border radius, and border width.
 _COPY_CSS = """
 .copy-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -220,57 +209,57 @@ async function writeClipboard(text) {{
     await navigator.clipboard.writeText(text);
     return true;
   }} catch (err) {{
-    // Fallback for browsers or contexts that block the Clipboard API.
-    const area = document.createElement('textarea');
-    area.value = text;
-    area.setAttribute('readonly', '');
-    area.style.position = 'absolute';
-    area.style.left = '-9999px';
-    document.body.appendChild(area);
-    area.select();
-    let ok = false;
-    try {{ ok = document.execCommand('copy'); }} catch (e) {{ ok = false; }}
-    area.remove();
-    return ok;
+    // Fall back to execCommand when the browser blocks the Clipboard API.
+    const fallbackArea = document.createElement('textarea');
+    fallbackArea.value = text;
+    fallbackArea.setAttribute('readonly', '');
+    fallbackArea.style.position = 'absolute';
+    fallbackArea.style.left = '-9999px';
+    document.body.appendChild(fallbackArea);
+    fallbackArea.select();
+    let copied = false;
+    try {{ copied = document.execCommand('copy'); }} catch (e) {{ copied = false; }}
+    fallbackArea.remove();
+    return copied;
   }}
 }}
 
 export default function({{ parentElement, data }}) {{
-  const btn = parentElement.querySelector('.copy-btn');
-  if (!btn) return;
-  const icon = btn.querySelector('.icon');
-  const label = btn.querySelector('.label');
+  const button = parentElement.querySelector('.copy-btn');
+  if (!button) return;
+  const iconSpan = button.querySelector('.icon');
+  const labelSpan = button.querySelector('.label');
 
   const text = String(data.text ?? '');
-  const idle = String(data.label ?? 'Copy');
-  const done = String(data.copiedLabel ?? 'Copied!');
+  const idleLabel = String(data.label ?? 'Copy');
+  const copiedLabel = String(data.copiedLabel ?? 'Copied!');
 
-  const s = btn._copy || (btn._copy = {{ flash: null }});
-  btn.disabled = Boolean(data.disabled) || text.trim() === '';
-  btn.title = String(data.help ?? idle);
-  btn.setAttribute('aria-label', btn.title);
-  if (!s.flash) {{
-    icon.innerHTML = ICON_COPY;
-    label.textContent = idle;
+  const copyState = button._copy || (button._copy = {{ flash: null }});
+  button.disabled = Boolean(data.disabled) || text.trim() === '';
+  button.title = String(data.help ?? idleLabel);
+  button.setAttribute('aria-label', button.title);
+  if (!copyState.flash) {{
+    iconSpan.innerHTML = ICON_COPY;
+    labelSpan.textContent = idleLabel;
   }}
 
   const onClick = async () => {{
     if (!(await writeClipboard(text))) return;
-    icon.innerHTML = ICON_DONE;
-    label.textContent = done;
-    if (s.flash) clearTimeout(s.flash);
-    s.flash = setTimeout(() => {{
-      s.flash = null;
-      icon.innerHTML = ICON_COPY;
-      label.textContent = idle;
+    iconSpan.innerHTML = ICON_DONE;
+    labelSpan.textContent = copiedLabel;
+    if (copyState.flash) clearTimeout(copyState.flash);
+    copyState.flash = setTimeout(() => {{
+      copyState.flash = null;
+      iconSpan.innerHTML = ICON_COPY;
+      labelSpan.textContent = idleLabel;
     }}, 1500);
   }};
-  btn.addEventListener('click', onClick);
-  return () => btn.removeEventListener('click', onClick);
+  button.addEventListener('click', onClick);
+  return () => button.removeEventListener('click', onClick);
 }}
 """
 
-_COPY = st.components.v2.component(
+_COPY_COMPONENT = st.components.v2.component(
     "odia_transliterate_copy_button",
     html=_COPY_HTML,
     css=_COPY_CSS,
@@ -283,18 +272,17 @@ def copy_button(
     text: str,
     label: str,
     copied_label: str,
-    help: str,
+    tooltip: str,
     disabled: bool = False,
     key: str = "btn_copy",
 ) -> Any:
-    """Mount a copy-to-clipboard button sized like ``st.button``."""
-    return _COPY(
+    return _COPY_COMPONENT(
         key=key,
         data={
             "text": text,
             "label": label,
             "copiedLabel": copied_label,
-            "help": help,
+            "help": tooltip,
             "disabled": disabled,
         },
         width="content",

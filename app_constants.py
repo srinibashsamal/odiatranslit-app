@@ -1,115 +1,126 @@
-"""Constants, UI text, and CSS for the Odia Transliterate Streamlit app.
-
-This module centralises all configuration, bilingual UI strings (English and
-Odia), example texts, and the page-level CSS.
-"""
-
 from __future__ import annotations
 
-# ---------------------------------------------------------------------------
-# Application metadata
-# ---------------------------------------------------------------------------
-APP_ICON: str = "🔤"
-PACKAGE_NAME: str = "odiatranslit"
-PYPI_URL: str = "https://pypi.org/project/odiatranslit/"
-GITHUB_URL: str = "https://github.com/srinibashsamal/odiatranslit"
-TOOL_URL: str = "https://odiatranslitor.streamlit.app/"
-ISSUES_URL: str = f"{GITHUB_URL}/issues"
+FAVICON = "🔤"
+PACKAGE_NAME = "odiatranslit"
+PYPI_URL = "https://pypi.org/project/odiatranslit/"
+GITHUB_URL = "https://github.com/srinibashsamal/odiatranslit"
+TOOL_URL = "https://odiatranslitor.streamlit.app/"
+ISSUES_URL = f"{GITHUB_URL}/issues"
 
-# Max input length in Unicode code points.
-MAX_CHARACTERS: int = 50_000
+MAX_CHARACTERS = 50_000  # Unicode code-point limit for the input box.
+PANEL_HEIGHT = 220
 
-# Fixed IST offset (no DST).
-APP_UTC_OFFSET_MINUTES: int = 330
-APP_TZ_NAME: str = "IST"
+# fmt: off
 
-PANEL_HEIGHT: int = 220
+# DEMO_TEXTS = [
+#     "ଓଡ଼ିଆ ଭାଷା ଆମ ମାତୃଭାଷା, ଏହା ଆମ ପରିଚୟ ଓ ଗର୍ବର ପ୍ରତୀକ।",
+#     "ଓଡ଼ିଶା ହେଉଛି କଳା, ସଂସ୍କୃତି, ସାହିତ୍ୟ ଓ ପରମ୍ପରାର ପବିତ୍ର ଭୂମି।",
+#     "ଆମ ଭାଷା ଆମ ସଂସ୍କୃତିର ମୂଳ, ତେଣୁ ଓଡ଼ିଆ କହିବା, ପଢ଼ିବା ଓ ଲେଖିବା ଆମ ପାଇଁ ଗର୍ବର ବିଷୟ।",
+#     "ମୁଁ ଓଡ଼ିଆ, ମୋ ଭାଷା ଓଡ଼ିଆ, ମୋ ମାଟି ଓଡ଼ିଶା, ଏହା ମୋ ପାଇଁ ଗର୍ବ ଓ ସମ୍ମାନର ପରିଚୟ।",
+# ]
 
-PLACEHOLDERS: dict[str, str] = {
-    "o2r": "ଏଠାରେ ଓଡ଼ିଆ ଟେକ୍ସଟ୍ ଲେଖନ୍ତୁ...\nType or paste Odia text here...",
-    "r2o": ("Type or paste Roman text here...\ne.g. namaskAra  or  ōṛiā bhāṣā"),
-}
+JUKTAKHYARA_WORDS = [
+    "ବ୍ରହ୍ମାଣ୍ଡ", "ପୁସ୍ତକ", "ସଂସ୍କାର", "ସଂସ୍କୃତି",
+    "ପ୍ରଶ୍ନ", "ଦ୍ୱିତୀୟ", "ଲଜ୍ଜା", "ଗ୍ରନ୍ଥ",
+    "କର୍ତ୍ତବ୍ୟ", "କର୍ତ୍ତବ୍ୟ", "ଉଜ୍ଜ୍ୱଳ", "ଉତ୍ତର",
+    "ବ୍ୟକ୍ତିତ୍ୱ", "ଅଧ୍ୟୟନ", "ପୁରସ୍କାର", "ସମ୍ମାନ",
+    "ଉଲ୍ଲାସ", "ଚିହ୍ନ", "ବିଦ୍ୟାଳୟ", "ପ୍ରସିଦ୍ଧ",
+    "ଅବସ୍ଥା", "ସ୍ୱତନ୍ତ୍ର", "ସମ୍ପର୍କ", "ଯଜ୍ଞ",
+    "ଆଶୀର୍ବାଦ", "ସମ୍ବନ୍ଧ", "ଶ୍ରଦ୍ଧା"
+]
 
-DEMO_TEXT: str = "ଓଡ଼ିଆ ଭାଷା"
+# fmt: on
 
-# ---------------------------------------------------------------------------
-# Language and direction constants
-# ---------------------------------------------------------------------------
-LANGS: list[str] = ["en", "or"]
-LANG_LABELS: dict[str, str] = {
+SUPPORTED_LANGUAGES = ["en", "or"]
+LANGUAGE_LABELS = {
     "en": "English",
     "or": "ଓଡ଼ିଆ",
 }
 
-O2R: str = "o2r"
-R2O: str = "r2o"
-DIRECTIONS: list[str] = [O2R, R2O]
+ODIA_TO_ROMAN = "o2r"
+ROMAN_TO_ODIA = "r2o"
+DIRECTIONS = [ODIA_TO_ROMAN, ROMAN_TO_ODIA]
 
-DIRECTION_FILE_LABELS: dict[str, str] = {
-    O2R: "Odia → Roman",
-    R2O: "Roman → Odia",
+DIRECTION_FILE_LABELS = {
+    ODIA_TO_ROMAN: "Odia → Roman",
+    ROMAN_TO_ODIA: "Roman → Odia",
 }
 
-SCHEMES: list[str] = ["ISO15919", "Hunterian", "ITRANS"]
-REVERSIBLE_SCHEMES: set[str] = {"ISO15919", "ITRANS"}
-SCHEME_LABELS: dict[str, str] = {
+PLACEHOLDERS = {
+    ODIA_TO_ROMAN: "ଏଠାରେ ଓଡ଼ିଆ ଲିପି ଲେଖନ୍ତୁ...\nType or paste Odia text here...",
+    ROMAN_TO_ODIA: "Type or paste Roman text here...\ne.g. namaskAra  or  ōṛiā bhāṣā",
+}
+
+TRANSLITERATION_SCHEMES = ["ISO15919", "Hunterian", "ITRANS"]
+REVERSIBLE_SCHEMES = {"ISO15919", "ITRANS"}
+SCHEME_LABELS = {
     "ISO15919": "ISO 15919",
     "Hunterian": "Hunterian",
     "ITRANS": "ITRANS",
 }
 
-# ---------------------------------------------------------------------------
-# Example texts
-# ---------------------------------------------------------------------------
-ODIA_EXAMPLES: dict[str, str] = {
+ODIA_EXAMPLES = {
     "language": "ଓଡ଼ିଆ",
     "greeting": "ନମସ୍କାର",
-    "jagannath": "ଜଗନ୍ନାଥ",
+    "jagannath": "ଜୟ ଜଗନ୍ନାଥ",
     "sentence": "ମୋ ଓଡ଼ିଶା ଅତି ସୁନ୍ଦର।",
+    "sanskrit": """ଯା କୁନ୍ଦେନ୍ଦୁ ତୁଷାରହାର ଧବଳା ଯା ଶୁଭ୍ର ବସ୍ତ୍ରାବୃତା,
+ଯା ବୀଣା ବରଦଣ୍ଡ ମଣ୍ଡିତ କରା ଯା ଶ୍ୱେତ ପଦ୍ମାସନା ।
+ଯା ବ୍ରହ୍ମାଚ୍ୟୁତ ଶଙ୍କର ପ୍ରଭୃତିଭିର୍ଦେବୈଃ ସଦା ପୂଜିତା,
+ସା ମାଂ ପାତୁ ସରସ୍ୱତୀ ଭଗବତୀ ନିଃଶେଷ ଜାଡ୍ୟାପହା ॥""",
 }
 
 ROMAN_EXAMPLES: dict[str, dict[str, str]] = {
     "ISO15919": {
         "language": "ōṛiā",
         "greeting": "namaskāra",
-        "jagannath": "jagannātha",
+        "jagannath": "jaẏa jagannātha",
         "sentence": "mō ōṛiśā ati sundara।",
+        "sanskrit": """yā kundēndu tuṣārahāra dhabaḷā yā śubhra bastrābr̥tā,
+yā bīṇā baradaṇḍa maṇḍita karā yā śwēta padmāsanā ।
+yā brahmācẏuta śaṅkara prabhr̥tibhirdēbaiḥ sadā pūjitā,
+sā māṁ pātu saraswatī bhagabatī niḥśēṣa jāḍẏāpahā ॥""",
     },
     "Hunterian": {
         "language": "oria",
         "greeting": "namaskara",
-        "jagannath": "jagannatha",
+        "jagannath": "jaya jagannatha",
         "sentence": "mo orisha ati sundara।",
+        "sanskrit": """ya kundendu tusharahara dhabala ya shubhra bastrabrita,
+ya bina baradanda mandita kara ya shweta padmasana ।
+ya brahmachyuta shangkara prabhritibhirdebaih sada pujita,
+sa man patu saraswati bhagabati nihshesha jadyapaha ॥""",
     },
     "ITRANS": {
         "language": "o.DiA",
         "greeting": "namaskAra",
-        "jagannath": "jagannAtha",
+        "jagannath": "jaYa jagannAtha",
         "sentence": "mo o.DishA ati sundara।",
+        "sanskrit": """yA kundendu tuShArahAra dhabaLA yA shubhra bastrAbRRitA,
+yA bINA baradaNDa maNDita karA yA shweta padmAsanA ।
+yA brahmAchYuta sha~Nkara prabhRRitibhirdebaiH sadA pUjitA,
+sA mAM pAtu saraswatI bhagabatI niHsheSha jADYApahA ॥""",
     },
 }
 
-# ---------------------------------------------------------------------------
-# Bilingual UI strings
-# ---------------------------------------------------------------------------
-TEXT: dict[str, dict[str, str]] = {
+UI_TEXT: dict[str, dict[str, str]] = {
     "en": {
         "title": "Odia Transliterate",
         "tagline": (
-            "Convert Odia text to Roman script and Roman text "
-            "back to Odia using ISO 15919, Hunterian or ITRANS."
+            "Convert Odia text to Roman script and back using "
+            "ISO 15919, Hunterian, or ITRANS."
         ),
         "language": "Language / ଭାଷା",
         "direction": "Conversion direction",
-        O2R: "Odia → Roman",
-        R2O: "Roman → Odia",
+        ODIA_TO_ROMAN: "Odia → Roman",
+        ROMAN_TO_ODIA: "Roman → Odia",
         "scheme": "Transliteration scheme",
         "reversible": "Enable reversible conversion",
         "example": "Try an example",
         "example_ph": "Select an example",
         "input": "Input",
         "output": "Output",
-        "input_aria": "Enter or paste your text",
+        "input_area": "Enter or paste your text",
         "chars": "characters",
         "words": "words",
         "copy": "Copy input to clipboard",
@@ -124,14 +135,13 @@ TEXT: dict[str, dict[str, str]] = {
         "tab_about": "About",
         "how": (
             "1. Choose a direction.\n"
-            "2. Select a scheme.\n"
-            "3. Type or paste text. The result updates automatically as you type.\n"
-            "4. Use the copy buttons or download the result.\n"
-            "5. Use the swap icon for reverse conversion.\n\n"
-            "**Transliteration changes scripts; "
-            "it does not translate meaning.**"
+            "2. Choose a scheme.\n"
+            "3. Type or paste text. The output updates as you type.\n"
+            "4. Copy or download the result.\n"
+            "5. Use the swap button to reverse the conversion.\n\n"
+            "**Transliteration changes scripts. It does not translate meaning.**"
         ),
-        "powered": "Powered by {pkg} v{ver}",
+        "powered": "Uses {pkg} v{ver}",
         "footer": (
             "Built with ❤️ using <b>Streamlit</b> + {pypi_link}<br>"
             "By {author_link} · MIT License"
@@ -139,51 +149,52 @@ TEXT: dict[str, dict[str, str]] = {
         "conv_error": "Conversion failed: {err}",
         "demo_error": "Preview unavailable",
         "swap_too_long": (
-            "The output is {n} code points long, which is more than the "
-            "input limit of {limit}. Shorten the input before swapping."
+            "The output has {n} code points. The input limit is {limit}. "
+            "Shorten the input before swapping."
         ),
         "swap_failed": "Could not swap: {err}",
         "btn_clear": "Clear",
         "btn_swap": "Swap",
         "btn_dl": "Download",
         "limit_reached": (
-            "The input limit of {limit} code points has been reached. "
-            "Anything beyond it has been cut off."
+            "You reached the input limit of {limit} code points. "
+            "The app cut off the extra text."
         ),
         "odia_in_roman_hint": (
             "The input contains Odia script, but the direction is Roman → "
             "Odia. Switch the direction to convert it to Roman."
         ),
         "scheme_hint": (
-            "Scheme changed. Roman spellings differ between schemes, so "
-            "re-check the input for the new scheme."
+            "The scheme changed. Roman spellings differ by scheme, so "
+            "check the input for the new scheme."
         ),
         "pypi": "PyPI",
         "github": "GitHub",
         "issues": "Report an issue",
         "sidebar_tip": "Tip",
         "tip_text": (
-            "Results update automatically as you type. Use ISO 15919 or ITRANS "
-            "with reversible mode for a lossless round trip."
+            "Results update as you type. For a lossless round trip, use "
+            "ISO 15919 or ITRANS with reversible mode."
         ),
         "about": (
             "Author: Srinibash Samal • MIT License\n\n"
-            "Text is processed temporarily by the app and "
-            "is not intentionally stored."
+            "The app processes text temporarily and does not "
+            "intentionally store it."
         ),
         "desc_ISO15919": (
-            "Academic and linguistically precise transliteration using diacritics."
+            "Uses diacritics for linguistically precise academic transliteration."
         ),
         "desc_Hunterian": (
-            "Simpler Roman spelling suited to readable names, places and general text."
+            "Uses simpler Roman spelling for readable names, places, and general text."
         ),
         "desc_ITRANS": (
-            "Keyboard-friendly transliteration using ASCII-style sequences."
+            "Uses ASCII-style sequences for keyboard-friendly transliteration."
         ),
         "ex_language": "Odia language",
         "ex_greeting": "Greeting",
         "ex_jagannath": "Jagannath",
         "ex_sentence": "Sentence",
+        "ex_sanskrit": "Shloka",
         "side_schemes": "Schemes",
         "side_schemes_table": (
             "| Scheme | Best for | Example |\n"
@@ -195,9 +206,9 @@ TEXT: dict[str, dict[str, str]] = {
         "side_features": "Features",
         "side_features_list": (
             "- Bidirectional conversion\n"
-            "- Lossless round-trip (ISO & ITRANS with reversible)\n"
-            "- Mixed text safe (English, numbers, punctuation pass through)\n"
-            "- Copy-friendly input & output"
+            "- Lossless round trips (ISO 15919 and ITRANS in reversible mode)\n"
+            "- Mixed text safe (passes English, numbers, and punctuation through)\n"
+            "- Easy to copy input and output"
         ),
         "side_useful": "Useful for",
         "side_useful_list": (
@@ -212,29 +223,29 @@ TEXT: dict[str, dict[str, str]] = {
         "cmp_ISO15919": "Academic · Reversible",
         "cmp_Hunterian": "Names / Search · Lossy",
         "cmp_ITRANS": "Keyboard-friendly · Reversible",
-        "notes_title": "📝 Notes & tips",
+        "notes_title": "Notes and tips",
         "notes": (
             "**Reversible mode**  \n"
-            "When enabled (ISO 15919 / ITRANS only), ambiguous characters "
-            "are escaped so you can convert the Roman text back to the "
-            "*exact* original Odia.  \n"
-            "Example: English words inside Odia text are wrapped like "
-            "`:{Puri:}` in ISO 15919 and `_{Puri_}` in ITRANS.\n\n"
+            "When you enable reversible mode (ISO 15919 or ITRANS only), "
+            "the converter escapes ambiguous characters. You can then convert "
+            "the Roman text back to the *exact* original Odia.  \n"
+            "Example: It wraps English words inside Odia text as `:{Puri:}` "
+            "in ISO 15919 and `_{Puri_}` in ITRANS.\n\n"
             "**Hunterian limitations**  \n"
             "Several Odia letters map to the same Roman letter "
-            "(e.g. ଣ, ଞ, ନ → `n`).  \n"
-            "Decoding is best-effort and may not recover the original "
+            "(such as ଣ, ଞ, ନ → `n`).  \n"
+            "Decoding is best effort and may not recover the original "
             "spelling.\n\n"
             "**Mixed text**  \n"
             "English words, numbers, and punctuation pass through "
             "unchanged.\n\n"
             "**Digits**  \n"
-            "- ISO 15919 keeps Odia digits (୦–୯)\n"
+            "- ISO 15919 keeps Odia digits (୦ to ୯)\n"
             "- Hunterian converts them to ASCII\n"
-            "- ITRANS converts them unless reversible=True\n\n"
+            "- ITRANS converts them unless `reversible=True`\n\n"
             "**ITRANS shortcuts**  \n"
-            "Accepts common alternatives such as `aa` for `A`, "
-            "`ii` for `I`, etc."
+            "ITRANS accepts common alternatives such as `aa` for `A` "
+            "and `ii` for `I`."
         ),
     },
     "or": {
@@ -245,15 +256,15 @@ TEXT: dict[str, dict[str, str]] = {
         ),
         "language": "Language / ଭାଷା",
         "direction": "ରୂପାନ୍ତର ଦିଗ",
-        O2R: "ଓଡ଼ିଆ → ରୋମାନ୍",
-        R2O: "ରୋମାନ୍ → ଓଡ଼ିଆ",
+        ODIA_TO_ROMAN: "ଓଡ଼ିଆ → ରୋମାନ୍",
+        ROMAN_TO_ODIA: "ରୋମାନ୍ → ଓଡ଼ିଆ",
         "scheme": "ଲିପ୍ୟନ୍ତର ପଦ୍ଧତି",
         "reversible": "ପ୍ରତ୍ୟାବର୍ତ୍ତନୀୟ ରୂପାନ୍ତର ସକ୍ରିୟ କରନ୍ତୁ",
         "example": "ଏକ ଉଦାହରଣ ଦେଖନ୍ତୁ",
         "example_ph": "ଏକ ଉଦାହରଣ ବାଛନ୍ତୁ",
         "input": "ଇନପୁଟ୍",
         "output": "ଆଉଟପୁଟ୍",
-        "input_aria": "ଆପଣଙ୍କ ଲେଖା ଟାଇପ୍ କିମ୍ବା ପେଷ୍ଟ କରନ୍ତୁ",
+        "input_area": "ଆପଣଙ୍କ ଲେଖା ଟାଇପ୍ କିମ୍ବା ପେଷ୍ଟ କରନ୍ତୁ",
         "chars": "ଅକ୍ଷର",
         "words": "ଶବ୍ଦ",
         "copy": "ଇନପୁଟ୍ କ୍ଲିପବୋର୍ଡକୁ କପି କରନ୍ତୁ",
@@ -273,23 +284,25 @@ TEXT: dict[str, dict[str, str]] = {
             "ଟାଇପ୍ କରିବା ସହିତ ଫଳାଫଳ ଆପେ ଆପେ ବଦଳିବ।\n"
             "4. କପି ବଟନ୍ ବ୍ୟବହାର କରନ୍ତୁ କିମ୍ବା ଫଳାଫଳ ଡାଉନଲୋଡ୍ କରନ୍ତୁ।\n"
             "5. ଓଲଟା ରୂପାନ୍ତର ପାଇଁ ବଦଳ ଆଇକନ୍ ବ୍ୟବହାର କରନ୍ତୁ।\n\n"
-            "**ଲିପ୍ୟନ୍ତର ଲିପି ବଦଳାଏ; ଏହା ଅର୍ଥ ଅନୁବାଦ କରେ ନାହିଁ।**"
+            "**ଲିପ୍ୟନ୍ତର ଲିପି ବଦଳାଏ। ଏହା ଅର୍ଥ ଅନୁବାଦ କରେ ନାହିଁ।**"
         ),
-        "powered": "{pkg} v{ver} ଦ୍ୱାରା ଚାଳିତ",
+        "powered": "{pkg} v{ver} ବ୍ୟବହାର କରେ",
         "footer": (
             "<b>Streamlit</b> + {pypi_link} ସହ ❤️ ରେ ନିର୍ମିତ<br>{author_link} · MIT ଲାଇସେନ୍ସ"
         ),
         "conv_error": "ରୂପାନ୍ତର ବିଫଳ ହେଲା: {err}",
         "demo_error": "ପୂର୍ବାବଲୋକନ ଉପଲବ୍ଧ ନାହିଁ",
         "swap_too_long": (
-            "ଆଉଟପୁଟ୍‌ରେ {n}ଟି କୋଡ୍ ପଏଣ୍ଟ ଅଛି, ଯାହା ଇନପୁଟ୍ ସୀମା {limit}ରୁ ଅଧିକ। "
+            "ଆଉଟପୁଟ୍‌ରେ {n}ଟି କୋଡ୍ ପଏଣ୍ଟ ଅଛି। ଇନପୁଟ୍ ସୀମା {limit}। "
             "ବଦଳାଇବା ପୂର୍ବରୁ ଇନପୁଟ୍ ଛୋଟ କରନ୍ତୁ।"
         ),
         "swap_failed": "ବଦଳାଯାଇପାରିଲା ନାହିଁ: {err}",
         "btn_clear": "ଲିଭାନ୍ତୁ",
         "btn_swap": "ଦିଗ ବଦଳାନ୍ତୁ",
         "btn_dl": "ଡାଉନଲୋଡ୍",
-        "limit_reached": ("ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। ଏହାଠାରୁ ଅଧିକ ଲେଖା କଟିଯାଇଛି।"),
+        "limit_reached": (
+            "ଇନପୁଟ୍ ସୀମା {limit} କୋଡ୍ ପଏଣ୍ଟରେ ପହଞ୍ଚିଛି। ଆପ୍ ଅତିରିକ୍ତ ଲେଖା କାଟିଦେଇଛି।"
+        ),
         "odia_in_roman_hint": (
             "ଇନପୁଟ୍‌ରେ ଓଡ଼ିଆ ଲିପି ଅଛି, କିନ୍ତୁ ଦିଗ ରୋମାନ୍ → ଓଡ଼ିଆ ଅଛି। ରୋମାନ୍‌କୁ ବଦଳାଇବାକୁ ଦିଗ ବଦଳାନ୍ତୁ।"
         ),
@@ -307,16 +320,19 @@ TEXT: dict[str, dict[str, str]] = {
         ),
         "about": (
             "ଲେଖକ: Srinibash Samal • MIT ଲାଇସେନ୍ସ\n\n"
-            "ଲେଖା ଏହି ଆପ୍ ଦ୍ୱାରା ଅସ୍ଥାୟୀ ଭାବେ ପ୍ରକ୍ରିୟାକରଣ ହୁଏ, "
-            "ଜାଣିଶୁଣି ସଂରକ୍ଷିତ ହୁଏ ନାହିଁ।"
+            "ଏହି ଆପ୍ ଲେଖାକୁ ଅସ୍ଥାୟୀ ଭାବେ ପ୍ରକ୍ରିୟାକରଣ କରେ ଏବଂ "
+            "ଜାଣିଶୁଣି ସଂରକ୍ଷଣ କରେ ନାହିଁ।"
         ),
-        "desc_ISO15919": ("ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"),
-        "desc_Hunterian": ("ନାମ, ସ୍ଥାନ ଓ ସାଧାରଣ ଲେଖା ପାଇଁ ସହଜ ରୋମାନ୍ ବନାନ।"),
-        "desc_ITRANS": ("କିବୋର୍ଡ ଅନୁକୂଳ, ASCII ଧାଡ଼ି ଆଧାରିତ ଲିପ୍ୟନ୍ତର।"),
+        "desc_ISO15919": (
+            "ଡାଇକ୍ରିଟିକ୍ ବ୍ୟବହାର କରି ଶୈକ୍ଷିକ ଓ ଭାଷାବୈଜ୍ଞାନିକ ସଠିକ୍ ଲିପ୍ୟନ୍ତର।"
+        ),
+        "desc_Hunterian": "ନାମ, ସ୍ଥାନ ଓ ସାଧାରଣ ଲେଖା ପାଇଁ ସହଜ ରୋମାନ୍ ବନାନ।",
+        "desc_ITRANS": "କିବୋର୍ଡ ଅନୁକୂଳ, ASCII ଧାଡ଼ି ଆଧାରିତ ଲିପ୍ୟନ୍ତର।",
         "ex_language": "ଓଡ଼ିଆ ଭାଷା",
         "ex_greeting": "ନମସ୍କାର",
         "ex_jagannath": "ଜଗନ୍ନାଥ",
         "ex_sentence": "ବାକ୍ୟ",
+        "ex_sanskrit": "ଶ୍ଳୋକ",
         "side_schemes": "ପଦ୍ଧତି",
         "side_schemes_table": (
             "| ପଦ୍ଧତି | କେଉଁଥିପାଇଁ ଉପଯୁକ୍ତ | ଉଦାହରଣ |\n"
@@ -345,14 +361,14 @@ TEXT: dict[str, dict[str, str]] = {
         "cmp_ISO15919": "ଶୈକ୍ଷିକ · ପ୍ରତ୍ୟାବର୍ତ୍ତନୀୟ",
         "cmp_Hunterian": "ନାମ / ସନ୍ଧାନ · ତଥ୍ୟହ୍ରାସୀ",
         "cmp_ITRANS": "କିବୋର୍ଡ-ଅନୁକୂଳ · ପ୍ରତ୍ୟାବର୍ତ୍ତନୀୟ",
-        "notes_title": "📝 ଟିପ୍ପଣୀ ଓ ପରାମର୍ଶ",
+        "notes_title": "ଟିପ୍ପଣୀ ଓ ପରାମର୍ଶ",
         "notes": (
             "**ପ୍ରତ୍ୟାବର୍ତ୍ତନୀୟ ମୋଡ୍**  \n"
-            "ସକ୍ରିୟ ଥିଲେ (କେବଳ ISO 15919 / ITRANS), ଅସ୍ପଷ୍ଟ ଅକ୍ଷରଗୁଡ଼ିକ "
-            "ସୁରକ୍ଷିତ କରାଯାଏ, ଯାହାଫଳରେ ରୋମାନ୍ ଲେଖାକୁ *ହୁବହୁ* ମୂଳ ଓଡ଼ିଆକୁ "
-            "ଫେରାଇ ପାରିବେ।  \n"
-            "ଉଦାହରଣ: ଓଡ଼ିଆ ଲେଖା ଭିତରେ ଥିବା ଇଂରାଜୀ ଶବ୍ଦ ISO 15919 ରେ `:{Puri:}` "
-            "ଏବଂ ITRANS ରେ `_{Puri_}` ଭଳି ଆବୃତ ହୁଏ।\n\n"
+            "ଆପଣ ପ୍ରତ୍ୟାବର୍ତ୍ତନୀୟ ମୋଡ୍ ସକ୍ରିୟ କଲେ (କେବଳ ISO 15919 କିମ୍ବା ITRANS), "
+            "କନଭର୍ଟର୍ ଅସ୍ପଷ୍ଟ ଅକ୍ଷରଗୁଡ଼ିକୁ ଏସ୍କେପ୍ କରେ। ତାପରେ ଆପଣ ରୋମାନ୍ ଲେଖାକୁ "
+            "*ହୁବହୁ* ମୂଳ ଓଡ଼ିଆକୁ ଫେରାଇ ପାରିବେ।  \n"
+            "ଉଦାହରଣ: ଏହା ଓଡ଼ିଆ ଲେଖା ଭିତରେ ଥିବା ଇଂରାଜୀ ଶବ୍ଦକୁ ISO 15919 ରେ "
+            "`:{Puri:}` ଏବଂ ITRANS ରେ `_{Puri_}` ଭାବେ ଆବୃତ କରେ।\n\n"
             "**Hunterian ର ସୀମା**  \n"
             "ଅନେକ ଓଡ଼ିଆ ଅକ୍ଷର ଗୋଟିଏ ରୋମାନ୍ ଅକ୍ଷରରେ ମିଶିଯାଆନ୍ତି "
             "(ଯଥା ଣ, ଞ, ନ → `n`)।  \n"
@@ -360,28 +376,23 @@ TEXT: dict[str, dict[str, str]] = {
             "**ମିଶ୍ରିତ ଲେଖା**  \n"
             "ଇଂରାଜୀ ଶବ୍ଦ, ସଂଖ୍ୟା ଓ ବିରାମଚିହ୍ନ ଯଥାବତ୍ ରହେ।\n\n"
             "**ଅଙ୍କ**  \n"
-            "- ISO 15919 ଓଡ଼ିଆ ଅଙ୍କ (୦–୯) ରଖେ\n"
+            "- ISO 15919 ଓଡ଼ିଆ ଅଙ୍କ (୦ ରୁ ୯) ରଖେ\n"
             "- Hunterian ସେଗୁଡ଼ିକୁ ASCII କରେ\n"
-            "- ITRANS ସେଗୁଡ଼ିକୁ ବଦଳାଏ, reversible=True ନଥିଲେ\n\n"
+            "- ITRANS ସେଗୁଡ଼ିକୁ ବଦଳାଏ, `reversible=True` ନଥିଲେ\n\n"
             "**ITRANS ସଂକ୍ଷିପ୍ତ ରୂପ**  \n"
-            "`A` ପାଇଁ `aa`, `I` ପାଇଁ `ii` ଭଳି ସାଧାରଣ ବିକଳ୍ପ ଗ୍ରହଣ କରେ।"
+            "ITRANS `A` ପାଇଁ `aa` ଏବଂ `I` ପାଇଁ `ii` ଭଳି ସାଧାରଣ ବିକଳ୍ପ ଗ୍ରହଣ କରେ।"
         ),
     },
 }
 
-# ---------------------------------------------------------------------------
-# Page-level CSS (injected once via st.markdown)
-# ---------------------------------------------------------------------------
-CUSTOM_CSS: str = """
+CSS = """
 <style>
-/* Wider main content area */
 .block-container {
     max-width: 1150px;
     padding-top: 2rem;
     padding-bottom: 3rem;
 }
 
-/* Scheme description call-out */
 .scheme-info {
     border-left: 4px solid #ff7f0e;
     background: rgba(255, 127, 14, 0.08);
@@ -390,7 +401,6 @@ CUSTOM_CSS: str = """
     margin: 0.5rem 0 1rem;
 }
 
-/* Footer */
 .app-footer {
     text-align: center;
     color: inherit;
@@ -403,7 +413,7 @@ CUSTOM_CSS: str = """
     text-decoration: underline;
 }
 
-/* ---- Phones / narrow screens ---------------------------------------- */
+/* Mobile layout */
 @media (max-width: 640px) {
     .block-container {
         padding-top: 1rem;
@@ -423,7 +433,7 @@ CUSTOM_CSS: str = """
         margin: 0.25rem 0 0.75rem;
         font-size: 0.9rem;
     }
-    /* Thumb-sized toolbar buttons */
+    /* Keep action buttons easy to tap on phones. */
     .st-key-btn_clear button,
     .st-key-btn_swap button,
     .st-key-btn_dl button {
