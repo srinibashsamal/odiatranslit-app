@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import random
+import secrets
 
 import streamlit as st
 
@@ -399,8 +399,8 @@ def render_scheme_comparison(labels: dict[str, str]) -> None:
     st.subheader(labels["cmp_title"])
 
     columns = st.columns(len(TRANSLITERATION_SCHEMES))
-    # random_text = random.choice(DEMO_TEXTS)
-    random_text = random.choice(JUKTAKHYARA_WORDS)
+    # random_text = secrets.choice(DEMO_TEXTS)
+    random_text = secrets.choice(JUKTAKHYARA_WORDS)
 
     for col, scheme_name in zip(columns, TRANSLITERATION_SCHEMES, strict=True):
         with col:
