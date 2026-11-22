@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import random
+
 import streamlit as st
 
+import live_input as li
 from app_constants import (
-    FAVICON,
     CSS,
-    # DEMO_TEXTS,
-    JUKTAKHYARA_WORDS,
     DIRECTIONS,
+    FAVICON,
     GITHUB_URL,
     ISSUES_URL,
+    # DEMO_TEXTS,
+    JUKTAKHYARA_WORDS,
     LANGUAGE_LABELS,
     MAX_CHARACTERS,
     ODIA_EXAMPLES,
@@ -33,7 +35,6 @@ from helpers import (
     installed_package_version,
     transliterate_text,
 )
-import live_input as li
 
 st.set_page_config(
     page_title="Odia Transliterate",
@@ -102,7 +103,8 @@ def on_source_edit() -> None:
         return
 
     cleaned_text = entered_text.encode("utf-16", "surrogatepass").decode(
-        "utf-16", "replace"  # Normalize lone UTF-16 surrogates from browser input.
+        "utf-16",
+        "replace",  # Normalize lone UTF-16 surrogates from browser input.
     )
     was_truncated = len(cleaned_text) > MAX_CHARACTERS
     if was_truncated:
@@ -468,7 +470,7 @@ def main() -> None:
 
     package_link = f'<a href="{PYPI_URL}" target="_blank">{PACKAGE_NAME}</a>'
     dev_link = (
-        f'<a href="https://github.com/srinibashsamal" target="_blank">Srinibash</a>'
+        '<a href="https://github.com/srinibashsamal" target="_blank">Srinibash</a>'
     )
 
     footer = labels["footer"].format(pypi_link=package_link, author_link=dev_link)
